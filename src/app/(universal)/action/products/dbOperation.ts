@@ -39,6 +39,7 @@ export type ProductSearchType = {
 //  Cached version — reduces Firestore reads massively
 
 import { unstable_cache } from "next/cache";
+import { deleteRecipesByProductId } from "../productRecipes/deleteRecipesByProductId";
 
 export const fetchProducts = unstable_cache(
   async (): Promise<ProductType[]> => {
@@ -568,7 +569,18 @@ export async function deleteProduct(
     .doc(id);
 
   try {
-    // DELETE FIRESTORE PRODUCT
+    // ✅ 1. DELETE RECIPES FIRST
+    const recipeResult =
+      await deleteRecipesByProductId(id);
+
+    if (!recipeResult.success) {
+      return {
+        errors:
+          "Failed to delete related recipes",
+      };
+    }
+
+    // ✅ 2. DELETE PRODUCT
     await docRef.delete();
 
     console.log(
@@ -576,7 +588,7 @@ export async function deleteProduct(
       id
     );
 
-    // DELETE IMAGE IF NOT DEFAULT
+    // ✅ 3. DELETE IMAGE
     if (oldImageUrl !== "/com.jpg") {
       const imagePublicId =
         oldImageUrl
@@ -595,7 +607,6 @@ export async function deleteProduct(
           error
         );
 
-        // STILL REVALIDATE CACHE
         revalidateTag("products", "max");
         revalidateTag(
           "featured-products",
@@ -615,30 +626,24 @@ export async function deleteProduct(
       }
     }
 
-    // REVALIDATE CACHE TAGS
+    // ✅ 4. REVALIDATE
     revalidateTag("products", "max");
-
     revalidateTag(
       "featured-products",
       "max"
     );
 
-    // REVALIDATE PAGES
     revalidatePath("/");
-
     revalidatePath("/products");
-
-    revalidatePath(
-      "/admin/products"
-    );
+    revalidatePath("/admin/products");
 
     return {
       message:
-        "Product and image deleted successfully.",
+        "Product, recipes and image deleted successfully.",
     };
   } catch (error) {
     console.error(
-      "Error deleting product from Firestore:",
+      "Error deleting product:",
       error
     );
 

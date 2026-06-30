@@ -703,16 +703,24 @@ export default function FormView({
                   Quantity
                 </label>
 
-                <input
-                  type="number"
-                  step="0.001"
-                  disabled={!selectedProduct}
-                  {...register(
-                    "quantity"
-                  )}
-                  className="input-style-4"
-                  placeholder="0.25"
-                />
+              <input
+  type="number"
+  step="0.001"
+  disabled={!selectedProduct}
+  {...register("quantity")}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+  onBlur={(e) => {
+    if (e.target.value === "") {
+      e.target.value = "0";
+    }
+  }}
+  className="input-style-4"
+  placeholder="0.25"
+/>
               </div>
 
               {/* UNIT */}
