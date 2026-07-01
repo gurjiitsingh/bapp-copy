@@ -46,7 +46,7 @@ export async function fetchProductsStock(): Promise<
   try {
     const snapshot =
       await adminDb
-        .collection("products")
+        .collection("productStock")
         .get();
 
     if (snapshot.empty) {

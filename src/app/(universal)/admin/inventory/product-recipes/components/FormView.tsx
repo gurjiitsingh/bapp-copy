@@ -33,7 +33,8 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import { addProductRecipe } from "@/app/(universal)/action/productRecipes/dbOperations";
 import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
 import { MdDeleteForever } from "react-icons/md";
-deleteProductRecipe
+
+
 type Props = {
   products: ProductType[];
   inventoryItems: InventoryItemType[];
