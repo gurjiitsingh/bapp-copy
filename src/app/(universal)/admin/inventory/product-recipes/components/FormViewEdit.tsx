@@ -26,16 +26,16 @@ import {
   newProductRecipeSchema,
 } from "@/lib/types/ProductRecipeType";
 
-import { ProductType } from "@/lib/types/productType";
 
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import { addProductRecipe } from "@/app/(universal)/action/productRecipes/dbOperations";
 import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
 import { MdDeleteForever } from "react-icons/md";
+import { ProductStockType } from "@/lib/types/productStockType";
 deleteProductRecipe
 type Props = {
-  products: ProductType[];
+  products: ProductStockType[];
   inventoryItems: InventoryItemType[];
   recipes: ProductRecipeType[];
   initialProductId?: string | null; // ✅ NEW
@@ -47,6 +47,8 @@ export default function FormViewEdit({
   recipes,
   initialProductId
 }: Props) {
+
+  
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
@@ -63,7 +65,7 @@ export default function FormViewEdit({
     useState(false);
 
   const [selectedProduct, setSelectedProduct] =
-    useState<ProductType | null>(null);
+    useState<ProductStockType | null>(null);
 
   const searchRef =
     useRef<HTMLDivElement>(null);

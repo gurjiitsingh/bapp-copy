@@ -1,13 +1,4 @@
-import React from 'react';
-  
-  const MiniCartproductList = () =>  {
-	return (
-	  <div>
-	  </div>
-	);
-  }
-  
-  export default MiniCartproductList;
+
   "use client";
 import React, { useContext } from "react";
 import CartContext from "@/store/CartContext";

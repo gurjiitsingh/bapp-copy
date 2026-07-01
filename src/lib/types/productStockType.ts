@@ -34,7 +34,40 @@ sellingUnit: string;
   // META
   updatedAt: number;
 };
+export type ProductStockType = {
+  id: string; // SAME as productId
 
+  // SNAPSHOT (avoid joins)
+  name: string;
+  categoryId?: string;
+  categoryName?: string;
+
+  // INVENTORY CORE
+  productMode: "raw_stock" | "finished_stock" | "simple";
+
+  currentStock: number;
+  minStock: number;
+
+  // TRACKING
+  sku?: string;
+  barcode?: string;
+
+
+  sellingPrice: number;  // 👈 from product.price
+  bulkPrice?: number;    // optional
+  costPrice: number;     // 👈 internal cost
+  avgCost?: number;      // 👈 future calculation
+sellingUnit: string;
+
+  // 🔁 CONTROL
+  priceSyncEnabled: boolean; // 👈 VERY IMPORTANT
+
+  trackInventory?: boolean;
+  allowNegativeStock?: boolean;
+
+  // META
+  updatedAt: number;
+};
 
 export type AddProductStockInput = {
   id: string;

@@ -1,13 +1,3 @@
-import React from 'react';
-  
-  const ProductList = () =>  {
-	return (
-	  <div>
-	  </div>
-	);
-  }
-  
-  export default ProductList;
   "use client";
 import React, { useContext } from "react";
 import CartContext from "@/store/CartContext";

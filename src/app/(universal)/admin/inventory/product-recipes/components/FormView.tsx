@@ -26,21 +26,22 @@ import {
   newProductRecipeSchema,
 } from "@/lib/types/ProductRecipeType";
 
-import { ProductType } from "@/lib/types/productType";
+ 
 
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import { addProductRecipe } from "@/app/(universal)/action/productRecipes/dbOperations";
 import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
 import { MdDeleteForever } from "react-icons/md";
+import { ProductStockType } from "@/lib/types/productStockType";
 
 
 type Props = {
-  products: ProductType[];
+  products: ProductStockType[];
   inventoryItems: InventoryItemType[];
   recipes: ProductRecipeType[];
   initialProductId?: string | null; // ✅ NEW
-};
+}; 
 
 export default function FormView({
   products,
@@ -49,7 +50,7 @@ export default function FormView({
 }: Props) {
   const [isSubmitting, setIsSubmitting] =
     useState(false);
-
+ 
   // =====================================================
   // PRODUCT SEARCH
   // =====================================================
@@ -61,7 +62,7 @@ export default function FormView({
     useState(false);
 
   const [selectedProduct, setSelectedProduct] =
-    useState<ProductType | null>(null);
+    useState<ProductStockType | null>(null);
 
   const searchRef =
     useRef<HTMLDivElement>(null);
@@ -411,7 +412,7 @@ export default function FormView({
 
                           <div className="text-xs text-gray-400">
                             {
-                              product.productCat
+                              product.categoryName
                             }
                           </div>
                         </button>

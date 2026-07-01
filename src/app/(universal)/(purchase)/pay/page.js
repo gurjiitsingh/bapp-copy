@@ -1,15 +1,4 @@
-import React from 'react';
-  
-  const Page = () =>  {
-	return (
-	  <div>
-	  </div>
-	);
-  }
-  
-  export default Page;
-  "use client";
-
+"use client";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Checkout from "./components/Checkout";
 

@@ -1,188 +1,67 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { ProductType } from "@/lib/types/productType";
 
-import { newProductSchema, editProductSchema } from "@/lib/types/productType";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { deleteImage, upload } from "@/lib/cloudinary";
-import { fetchCategories } from "@/app/(universal)/action/category/dbOperations";
-import { cache } from "react";
+import { ProductStock } from "@/lib/types/productStockType";
 
-import path from "path";
-import fs from "fs";
-import { randomUUID } from "crypto";
-
-
-
-
-export type ProductSearchType = {
-  id: string;
-
-  name: string;
-
-  price: number;
-
-  currentStock: number;
-
-  type: string;
-
-  productCat: string;
-
-  image: string;
-
-  searchCode: string;
-
-  updatedAt: number;
-};
-
-//  Cached version — reduces Firestore reads massively
-
-import { unstable_cache } from "next/cache";
-
-export async function fetchProductsStock(): Promise<
-  ProductType[]
-> {
+export async function fetchProductsStock(): Promise<ProductStock[]> {
   try {
-    const snapshot =
-      await adminDb
-        .collection("productStock")
-        .get();
+    const snapshot = await adminDb
+      .collection("productStock")
+      .get();
 
-    if (snapshot.empty) {
-      return [];
-    }
+    if (snapshot.empty) return [];
 
     return snapshot.docs.map((doc) => {
-      const data =
-        doc.data() as Partial<ProductType> & {
-          updatedAt?: any;
-        };
-
-      let updatedAt:
-        | string
-        | null = null;
-
-      if (data.updatedAt) {
-        if (
-          typeof data.updatedAt.toDate ===
-          "function"
-        ) {
-          updatedAt =
-            data.updatedAt
-              .toDate()
-              .toISOString();
-        } else if (
-          typeof data.updatedAt ===
-          "string"
-        ) {
-          updatedAt =
-            data.updatedAt;
-        }
-      }
+      const data = doc.data() as ProductStock;
 
       return {
         id: doc.id,
 
-        name:
-          data.name ?? "",
+        // SNAPSHOT
+        name: data.name ?? "",
+        categoryId: data.categoryId ?? "",
+        categoryName: data.categoryName ?? "",
 
-        price:
-          data.price ?? 0,
+        // INVENTORY
+        productMode: data.productMode ?? "simple",
+        currentStock: data.currentStock ?? 0,
+        minStock: data.minStock ?? 0,
 
-        currentStock:
-          data.currentStock ?? 0,
+        // TRACKING
+        sku: data.sku ?? "",
+        barcode: data.barcode ?? "",
 
-        discountPrice:
-          data.discountPrice ?? 0,
+        // PRICING
+        sellingPrice: data.sellingPrice ?? 0,
+       bulkPrice: data.bulkPrice ?? undefined,
+        costPrice: data.costPrice ?? 0,
+        avgCost: data.avgCost ?? data.costPrice ?? 0,
 
-        categoryId:
-          data.categoryId ?? "",
+        // UNIT
+        sellingUnit: data.sellingUnit ?? "kg",
 
-        masterCategoryId:
-          data.masterCategoryId ?? "",
+        // CONTROL
+        priceSyncEnabled: data.priceSyncEnabled ?? true,
+        trackInventory: data.trackInventory ?? true,
+        allowNegativeStock:
+          data.allowNegativeStock ?? false,
 
-        masterCategoryName:
-          data.masterCategoryName ??
-          "",
+        // META
+updatedAt:
+  data.updatedAt &&
+  typeof data.updatedAt === "object" &&
+  typeof (data.updatedAt as any).toMillis === "function"
+    ? (data.updatedAt as any).toMillis()
+    : typeof data.updatedAt === "number"
+    ? data.updatedAt
+    : Date.now(),
+// updatedAt: data.updatedAt?.toDate().toISOString() || '',
 
-        parentId:
-          data.parentId ?? "",
-
-        hasVariants:
-          data.hasVariants ??
-          false,
-
-        hasModifier:
-          data.hasModifier ??
-          false,
-
-        type:
-          data.type ??
-          "parent",
-
-        productCat:
-          data.productCat ??
-          "",
-
-        flavors:
-          data.flavors ??
-          false,
-
-        publishStatus:
-          data.publishStatus ??
-          "published",
-
-        stockStatus:
-          data.stockStatus ??
-          "out_of_stock",
-
-        baseProductId:
-          data.baseProductId ??
-          "",
-
-        productDesc:
-          data.productDesc ??
-          "",
-
-        sortOrder:
-          data.sortOrder ?? 0,
-
-        image:
-          data.image ?? "",
-
-        isFeatured:
-          data.isFeatured ??
-          false,
-
-        purchaseSession:
-          data.purchaseSession ??
-          null,
-
-        quantity:
-          data.currentStock ??
-          null,
-
-        updatedAt,
-
-        searchCode:
-          data.searchCode ??
-          "",
-
-        taxRate:
-          data.taxRate ??
-          undefined,
-
-        taxType:
-          data.taxType,
       };
     });
   } catch (error) {
-    console.error(
-      "Failed to fetch products:",
-      error
-    );
-
+    console.error("❌ Failed to fetch product stock:", error);
     return [];
   }
 }
