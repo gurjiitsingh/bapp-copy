@@ -29,17 +29,17 @@ type FormType = {
   | "PURCHASE"
   | "OPENING_STOCK"
   | "ADJUSTMENT"
-  | "WASTAGE"
-  | "SUPPLIER_RETURN"
-  | "CUSTOMER_RETURN";
+  | "WASTAGE";
 
-  direction:
-  | "IN"
-  | "OUT";
+  direction: "IN" | "OUT";
 
   quantity: number;
 
-  transactionUnit: InventoryUnit
+  transactionUnit: InventoryUnit;
+
+  unitCost: number;
+
+  totalAmount: number;
 
   note: string;
 };
@@ -57,7 +57,7 @@ export default function StockAdjustmentForm({
   const [showDropdown, setShowDropdown] =
     useState(false);
 
- 
+
 
   const [
     selectedInventory,
@@ -83,9 +83,10 @@ export default function StockAdjustmentForm({
     },
   });
 
-  const type = watch(
-    "type"
-  );
+  const type = watch("type");
+  const quantity = watch("quantity");
+  const unitCost = watch("unitCost");
+  const totalAmount = watch("totalAmount");
 
   const transactionUnit = watch("transactionUnit");
 
@@ -95,47 +96,51 @@ export default function StockAdjustmentForm({
   // AUTO SET STOCK DIRECTION
   // =====================================================
 
-  // React.useEffect(() => {
-  //   if (
-  //     type === "PURCHASE" ||
-  //     type === "OPENING_STOCK" ||
-  //     type === "CUSTOMER_RETURN"
-  //   ) {
-  //     setValue("direction", "IN");
-  //   }
+  useEffect(() => {
+    if (selectedInventory) {
+      setValue(
+        "transactionUnit",
+        selectedInventory.purchaseUnit
+      );
+    }
+  }, [selectedInventory, setValue]);
 
-  //   if (
-  //     type === "WASTAGE"
-  //   ) {
-  //     setValue("direction", "OUT");
-  //   }
-  // }, [type, setValue]);
-
-   useEffect(() => {
-  if (selectedInventory) {
-    setValue(
-      "transactionUnit",
-      selectedInventory.purchaseUnit
-    );
-  }
-}, [selectedInventory, setValue]);
-
-   useEffect(() => {
+  useEffect(() => {
     switch (type) {
-      case "PURCHASE":
       case "OPENING_STOCK":
-      case "CUSTOMER_RETURN":
-        setValue("direction", "IN");
+
+
         break;
 
       case "WASTAGE":
-      case "SUPPLIER_RETURN":
-        setValue("direction", "OUT");
+
         break;
 
       // ADJUSTMENT = manual selection
     }
   }, [type, setValue]);
+
+  useEffect(() => {
+  const qty = Number(quantity) || 0;
+  const cost = Number(unitCost) || 0;
+
+  setValue(
+    "totalAmount",
+    Number((qty * cost).toFixed(2))
+  );
+}, [quantity, unitCost, setValue]);
+
+useEffect(() => {
+  const qty = Number(quantity) || 0;
+  const total = Number(totalAmount) || 0;
+
+  if (qty > 0) {
+    setValue(
+      "unitCost",
+      Number((total / qty).toFixed(4))
+    );
+  }
+}, [totalAmount]);
 
   // =====================================================
   // FILTER INVENTORY
@@ -208,10 +213,10 @@ export default function StockAdjustmentForm({
     let finalQuantity =
       Number(data.quantity);
 
-      if (!selectedInventory.conversionFactor) {
-  alert("Conversion factor missing");
-  return;
-}
+    if (!selectedInventory.conversionFactor) {
+      alert("Conversion factor missing");
+      return;
+    }
     // convert purchase -> consumption
     if (
       data.transactionUnit ===
@@ -228,25 +233,6 @@ export default function StockAdjustmentForm({
 
     let unitCost = 0;
 
-    // if (
-    //   data.type === "OPENING_STOCK" ||
-    //   data.type === "CUSTOMER_RETURN"
-    // ) {
-    //   unitCost =
-    //     selectedInventory.costPrice || 0;
-    // }
-
-  //   let purchaseUnitCost =
-  // selectedInventory.costPrice || 0;
-
-// if (
-//   selectedInventory.purchaseUnit !==
-//   selectedInventory.consumptionUnit
-// ) {
-//   purchaseUnitCost =
-//     purchaseUnitCost *
-//     selectedInventory.conversionFactor;
-// }
 
     try {
       const result =
@@ -278,7 +264,7 @@ export default function StockAdjustmentForm({
           purchaseUnit:
             data.transactionUnit,
 
-          purchaseUnitCost:0,
+          purchaseUnitCost: 0,
 
           conversionFactor:
             selectedInventory.conversionFactor,
@@ -305,14 +291,14 @@ export default function StockAdjustmentForm({
           currentStock: updatedStock,
         });
 
-       reset({
-  type: "OPENING_STOCK",
-  direction: "IN",
-  quantity: 0,
-  note: "",
-  inventoryItemId: selectedInventory.id,
-  transactionUnit: selectedInventory.purchaseUnit, // ✅ FIX
-});
+        reset({
+          type: "OPENING_STOCK",
+          direction: "IN",
+          quantity: 0,
+          note: "",
+          inventoryItemId: selectedInventory.id,
+          transactionUnit: selectedInventory.purchaseUnit, // ✅ FIX
+        });
       } else {
         alert(result.message);
       }
@@ -339,8 +325,7 @@ export default function StockAdjustmentForm({
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
-            Add or remove inventory
-            stock manually
+            Adjust inventory quantity and valuation manually.
           </p>
         </div>
 
@@ -403,16 +388,26 @@ export default function StockAdjustmentForm({
                       <button
                         key={item.id}
                         type="button"
-                     onClick={() => {
+                onClick={() => {
   setSelectedInventory(item);
 
-  setValue("inventoryItemId", item.id, {
-    shouldValidate: true,
-  });
+  setValue("inventoryItemId", item.id);
 
-  setValue("transactionUnit", item.purchaseUnit, {
-    shouldValidate: true,
-  });
+  setValue("transactionUnit", item.purchaseUnit);
+
+  // current quantity
+  setValue("quantity", item.currentStock ?? 0);
+
+  // current cost
+  setValue("unitCost", item.averageCost ?? 0);
+
+  //setValue("totalAmount", item.stockValue ?? 0);
+
+  // current inventory value
+  setValue(
+    "totalAmount",
+    (item.currentStock ?? 0) * (item.averageCost ?? 0)
+  );
 
   setSearch(item.name);
   setShowDropdown(false);
@@ -504,13 +499,6 @@ export default function StockAdjustmentForm({
                   Opening Stock
                 </option>
 
-                <option value="CUSTOMER_RETURN">
-                  Customer Return
-                </option>
-
-                <option value="SUPPLIER_RETURN">
-                  Supplier Return
-                </option>
 
                 <option value="WASTAGE">
                   Wastage
@@ -574,20 +562,20 @@ export default function StockAdjustmentForm({
                 {...register("transactionUnit")}
                 className="input-style-4"
               >
-            {selectedInventory && (
-  <>
-    <option value={selectedInventory.purchaseUnit}>
-      {selectedInventory.purchaseUnit}
-    </option>
+                {selectedInventory && (
+                  <>
+                    <option value={selectedInventory.purchaseUnit}>
+                      {selectedInventory.purchaseUnit}
+                    </option>
 
-    {selectedInventory.consumptionUnit !==
-      selectedInventory.purchaseUnit && (
-      <option value={selectedInventory.consumptionUnit}>
-        {selectedInventory.consumptionUnit}
-      </option>
-    )}
-  </>
-)}
+                    {selectedInventory.consumptionUnit !==
+                      selectedInventory.purchaseUnit && (
+                        <option value={selectedInventory.consumptionUnit}>
+                          {selectedInventory.consumptionUnit}
+                        </option>
+                      )}
+                  </>
+                )}
 
                 {selectedInventory &&
                   selectedInventory.consumptionUnit !==
@@ -603,6 +591,43 @@ export default function StockAdjustmentForm({
                     </option>
                   )}
               </select>
+            </div>
+
+          </div>
+
+
+          {/* ===================================================== */}
+          {/* VALUATION */}
+          {/* ===================================================== */}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Unit Cost
+              </label>
+
+              <input
+                type="number"
+                step="0.01"
+                {...register("unitCost")}
+                className="input-style-4"
+                placeholder="0.00"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Total Stock Value
+              </label>
+
+              <input
+                type="number"
+                step="0.01"
+                {...register("totalValue")}
+                className="input-style-4"
+                placeholder="0.00"
+              />
             </div>
 
           </div>
