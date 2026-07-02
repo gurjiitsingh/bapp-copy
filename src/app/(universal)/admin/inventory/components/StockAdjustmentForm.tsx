@@ -37,9 +37,9 @@ type FormType = {
 
   transactionUnit: InventoryUnit;
 
-  unitCost: number;
+  averageCost: number;
 
-  totalAmount: number;
+  stockValue: number;
 
   note: string;
 };
@@ -57,7 +57,9 @@ export default function StockAdjustmentForm({
   const [showDropdown, setShowDropdown] =
     useState(false);
 
-
+  const [lastEdited, setLastEdited] = useState<
+    "averageCost" | "stockValue"
+  >("averageCost");
 
   const [
     selectedInventory,
@@ -85,8 +87,8 @@ export default function StockAdjustmentForm({
 
   const type = watch("type");
   const quantity = watch("quantity");
-  const unitCost = watch("unitCost");
-  const totalAmount = watch("totalAmount");
+  const averageCost = watch("averageCost");
+  const stockValue = watch("stockValue");
 
   const transactionUnit = watch("transactionUnit");
 
@@ -121,26 +123,50 @@ export default function StockAdjustmentForm({
   }, [type, setValue]);
 
   useEffect(() => {
-  const qty = Number(quantity) || 0;
-  const cost = Number(unitCost) || 0;
+    switch (type) {
+      case "OPENING_STOCK":
+        setValue("direction", "IN");
+        break;
 
-  setValue(
-    "totalAmount",
-    Number((qty * cost).toFixed(2))
-  );
-}, [quantity, unitCost, setValue]);
+      case "WASTAGE":
+        setValue("direction", "OUT");
+        break;
+    }
+  }, [type, setValue]);
 
-useEffect(() => {
-  const qty = Number(quantity) || 0;
-  const total = Number(totalAmount) || 0;
+  useEffect(() => {
+    if (type === "WASTAGE") {
+      setValue("averageCost", 0);
+      setValue("stockValue", 0);
+    }
+  }, [type, setValue]);
 
-  if (qty > 0) {
-    setValue(
-      "unitCost",
-      Number((total / qty).toFixed(4))
-    );
-  }
-}, [totalAmount]);
+  useEffect(() => {
+    const qty = Number(quantity || 0);
+
+    if (qty <= 0) return;
+
+    if (lastEdited === "averageCost") {
+      setValue(
+        "stockValue",
+        Number((qty * Number(averageCost || 0)).toFixed(2))
+      );
+    }
+
+    if (lastEdited === "stockValue") {
+      setValue(
+        "averageCost",
+        Number((Number(stockValue || 0) / qty).toFixed(4))
+      );
+    }
+  }, [
+    quantity,
+    averageCost,
+    stockValue,
+    lastEdited,
+    setValue,
+  ]);
+
 
   // =====================================================
   // FILTER INVENTORY
@@ -231,7 +257,16 @@ useEffect(() => {
 
     setIsSubmitting(true);
 
-    let unitCost = 0;
+    let averageCost = Number(data.averageCost);
+
+    if (
+      data.transactionUnit === selectedInventory.purchaseUnit &&
+      selectedInventory.purchaseUnit !== selectedInventory.consumptionUnit
+    ) {
+      averageCost =
+        averageCost /
+        selectedInventory.conversionFactor;
+    }
 
 
     try {
@@ -252,8 +287,9 @@ useEffect(() => {
 
           quantity: finalQuantity,
 
-          unitCost,
 
+          unitCost: averageCost,
+          stockValue: Number(data.stockValue),
           // =====================================
           // ORIGINAL
           // =====================================
@@ -354,7 +390,7 @@ useEffect(() => {
               {!search.trim() && (
                 <Search
                   size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                 />
               )}
 
@@ -388,30 +424,39 @@ useEffect(() => {
                       <button
                         key={item.id}
                         type="button"
-                onClick={() => {
-  setSelectedInventory(item);
+                        onClick={() => {
+                          setSelectedInventory(item);
 
-  setValue("inventoryItemId", item.id);
+                          setValue("inventoryItemId", item.id);
 
-  setValue("transactionUnit", item.purchaseUnit);
+                          setValue("transactionUnit", item.purchaseUnit);
 
-  // current quantity
-  setValue("quantity", item.currentStock ?? 0);
+                          // current quantity
+                          setValue("quantity", item.currentStock ?? 0);
+                          const displayQuantity =
+                            item.purchaseUnit === item.consumptionUnit
+                              ? item.currentStock ?? 0
+                              : (item.currentStock ?? 0) / item.conversionFactor;
 
-  // current cost
-  setValue("unitCost", item.averageCost ?? 0);
+                          const displayaverageCost =
+                            item.purchaseUnit === item.consumptionUnit
+                              ? item.averageCost ?? 0
+                              : (item.averageCost ?? 0) * item.conversionFactor;
 
-  //setValue("totalAmount", item.stockValue ?? 0);
+                       
+                       if (type === "WASTAGE") {
+  setValue("averageCost", 0);
+  setValue("stockValue", 0);  
+   setValue("quantity", 0);
+} else {
+  setValue("averageCost", Number(displayaverageCost.toFixed(2)));
+  setValue("stockValue", Number((item.stockValue ?? 0).toFixed(2)));
+     setValue("quantity", Number(displayQuantity.toFixed(3)));
+}
 
-  // current inventory value
-  setValue(
-    "totalAmount",
-    (item.currentStock ?? 0) * (item.averageCost ?? 0)
-  );
-
-  setSearch(item.name);
-  setShowDropdown(false);
-}}
+                          setSearch(item.name);
+                          setShowDropdown(false);
+                        }}
                         className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
                       >
                         <div className="font-medium text-gray-800">
@@ -544,13 +589,18 @@ useEffect(() => {
                 Quantity
               </label>
 
-              <input
-                type="number"
-                step="0.001"
-                {...register("quantity")}
-                className="input-style-4"
-                placeholder="0"
-              />
+             <input
+  type="number"
+  step="0.001"
+  {...register("quantity")}
+  className="input-style-4"
+  placeholder="Enter quantity"
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+/>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -600,7 +650,7 @@ useEffect(() => {
           {/* VALUATION */}
           {/* ===================================================== */}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {type !== "WASTAGE" && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <div className="flex flex-col gap-2">
               <label className="label-style-4">
@@ -610,7 +660,11 @@ useEffect(() => {
               <input
                 type="number"
                 step="0.01"
-                {...register("unitCost")}
+                value={averageCost || ""}
+                onChange={(e) => {
+                  setLastEdited("averageCost");
+                  setValue("averageCost", Number(e.target.value || 0));
+                }}
                 className="input-style-4"
                 placeholder="0.00"
               />
@@ -624,14 +678,18 @@ useEffect(() => {
               <input
                 type="number"
                 step="0.01"
-                {...register("totalValue")}
+                value={stockValue || ""}
+                onChange={(e) => {
+                  setLastEdited("stockValue");
+                  setValue("stockValue", Number(e.target.value || 0));
+                }}
                 className="input-style-4"
                 placeholder="0.00"
               />
             </div>
 
           </div>
-
+          }
           {/* ===================================================== */}
           {/* NOTE */}
           {/* ===================================================== */}

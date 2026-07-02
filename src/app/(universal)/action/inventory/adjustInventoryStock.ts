@@ -40,7 +40,7 @@ type AdjustInventoryStockType = {
   // =====================================
 
   quantity: number;
-
+stockValue?: number;
   unitCost: number;
 
   // =====================================
@@ -86,7 +86,7 @@ export async function adjustInventoryStock({
   purchaseUnit,
   purchaseUnitCost,
   conversionFactor,
-
+  stockValue,
   paymentStatus,
   paymentMethod,
   paidAmount: paidAmountInput,
@@ -96,7 +96,7 @@ export async function adjustInventoryStock({
   referenceId,
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
- 
+
   try {
     if (!inventoryItemId) {
       return { success: false, message: "Inventory item required" };
@@ -168,16 +168,18 @@ export async function adjustInventoryStock({
       }
 
       // ================= COST =================
-      const finalUnitCost =
+      const averageCost =
         unitCost ?? Number(inventoryData?.costPrice) ?? 0;
 
       const shouldApplyCost = needsCost;
 
 
-      const totalAmount = shouldApplyCost
-        ? quantity * finalUnitCost
-        : 0;
-
+      const totalAmount =
+        type === "OPENING_STOCK"
+          ? Number(stockValue || 0)
+          : shouldApplyCost
+            ? quantity * averageCost
+            : 0;
       // ================= PAYMENT =================
       const isPurchase =
         needsPayment &&
@@ -207,9 +209,12 @@ export async function adjustInventoryStock({
         direction,
 
         quantity,
+          totalAmount: needsCost
+          ? totalAmount
+          : 0,
 
-        unitCost: finalUnitCost,
-
+        unitCost: averageCost,
+        stockValue,
         purchaseQuantity,
         purchaseUnit,
         purchaseUnitCost,
@@ -223,9 +228,7 @@ export async function adjustInventoryStock({
           ? supplierName
           : undefined,
 
-        totalAmount: needsCost
-          ? totalAmount
-          : 0,
+      
 
         paidAmount: needsPayment
           ? paidAmount

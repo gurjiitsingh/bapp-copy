@@ -21,9 +21,9 @@ export async function applyInventoryMovement(
         direction,
 
         quantity,
-
+        stockValue,
         unitCost,
-
+ 
         purchaseQuantity,
         purchaseUnit,
         purchaseUnitCost,
@@ -46,6 +46,29 @@ export async function applyInventoryMovement(
 
         source = "SYSTEM",
     }: ApplyInventoryTransactionType) {
+
+
+       console.log(`
+===== applyInventoryMovement =====
+type: ${type}
+direction: ${direction}
+
+quantity: ${quantity}
+unitCost: ${unitCost}
+
+purchaseQuantity: ${purchaseQuantity}
+purchaseUnit: ${purchaseUnit}
+purchaseUnitCost: ${purchaseUnitCost}
+conversionFactor: ${conversionFactor}
+stockValue: ${stockValue}
+supplierId: ${supplierId}
+supplierName: ${supplierName}
+
+totalAmount: ${totalAmount}
+paidAmount: ${paidAmount}
+dueAmount: ${dueAmount}
+=================================
+`);
 
 
     const now = admin.firestore.FieldValue.serverTimestamp();
@@ -96,21 +119,32 @@ export async function applyInventoryMovement(
     const isCostMovement = COST_TYPES.has(type);
 
     // Use entered cost, otherwise current average cost
-    const finalUnitCost =
-        unitCost ?? beforeAverageCost;
+    const finalUnitCost = Number(unitCost || beforeAverageCost);
+
+
+//         console.log("adjust-----------------------",
+//   type,
+//   direction,
+//   quantity,
+//   beforeStock,
+//   beforeStockValue,
+// );
 
     // --------------------------------------
     // OPENING STOCK
     // --------------------------------------
 
-    if (type === "OPENING_STOCK") {
-        afterStock = quantity;
-        afterStockValue = totalAmount;
-        afterAverageCost =
-            afterStock > 0
-                ? afterStockValue / afterStock
-                : 0;
-    }
+     
+
+  if (type === "OPENING_STOCK") {
+    afterStock = quantity;
+    afterStockValue = stockValue!;
+
+    afterAverageCost =
+        afterStock > 0
+            ? afterStockValue / afterStock
+            : 0;
+}
 
     // --------------------------------------
     // PURCHASE / CUSTOMER RETURN
@@ -123,8 +157,9 @@ export async function applyInventoryMovement(
     ) {
         afterStock = beforeStock + quantity;
 
-        afterStockValue =
-            beforeStockValue + totalAmount;
+        // afterStockValue =
+        //     beforeStockValue + totalAmount;
+        afterStockValue = beforeStockValue + stockValue!;
 
         afterAverageCost =
             afterStock > 0
@@ -151,12 +186,17 @@ export async function applyInventoryMovement(
                 : 0;
     }
 
+
+
+
     // --------------------------------------
     // WASTAGE / ADJUSTMENT OUT / SUPPLIER RETURN
     // --------------------------------------
 
+    
+
     else if (
-        direction === "OUT"
+   type === "ADJUSTMENT" &&     direction === "OUT"
     ) {
         // const removedValue =
         //     quantity * beforeAverageCost;
@@ -185,6 +225,35 @@ const removedValue =
                 ? afterStockValue / afterStock
                 : 0;
     }
+
+
+ else if (type === "WASTAGE") {
+
+    afterStock = beforeStock - quantity;
+
+    const currentAverage =
+        beforeStock > 0
+            ? beforeStockValue / beforeStock
+            : 0;
+
+    const removedValue =
+        currentAverage * quantity;
+
+    if (afterStock < 0) {
+        throw new Error("Insufficient stock");
+    }
+
+    afterStockValue = Math.max(
+        0,
+        beforeStockValue - removedValue
+    );
+
+    afterAverageCost =
+        afterStock > 0
+            ? afterStockValue / afterStock
+            : 0;
+}
+
 
     // Final safety
     afterStockValue = Number(
