@@ -11,6 +11,7 @@ export default async function Page() {
     id: doc.id,
     ...doc.data(),
   }));
-
-  return <PayrollClient initialData={payrolls} />;
+  
+  return <div></div>
+  // return <PayrollClient initialData={payrolls} />;
 }

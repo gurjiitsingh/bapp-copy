@@ -1,10 +1,11 @@
 'use client'
 
-import { Card } from "../../../../../components/ui/card"
+ 
 import { FormEvent } from "react"
 //import { signIn } from "next-auth/react";// useSession
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const CreatePassword = () => {
 

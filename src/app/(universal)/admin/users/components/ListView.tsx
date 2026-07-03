@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 
 import TableRows from "./TableRows";
-import { fetchAllUsers } from "@/app/(universal)/action/user/dbOperation";
+import { fetchAllUsers } from "@/app/(universal)/action/user/fetchAllUsersDashboard";
 import { userType } from "@/lib/types/userType";
 import { userDashboardType } from "@/lib/types/userDashboardType";
 
@@ -46,8 +46,9 @@ const ListView = ({ title }: productTableProps) => {
               <TableHead className="hidden md:table-cell">Email</TableHead>
                <TableHead className="hidden md:table-cell">Phone</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead className="hidden md:table-cell text-right">Actions</TableHead>
+            
               <TableHead>Time</TableHead>
+                <TableHead className="hidden md:table-cell text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
