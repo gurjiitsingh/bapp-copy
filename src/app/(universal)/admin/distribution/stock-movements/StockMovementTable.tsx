@@ -17,17 +17,19 @@ type Props = {
 export default function StockMovementTable({
   movements,
 }: Props) {
+
+ 
   return (
-    <Card className="rounded-3xl border border-gray-100 shadow-sm bg-white">
-      <CardHeader className="border-b">
+    <Card className="rounded-3xl  border-0 p-0   shadow-sm bg-white">
+      <CardHeader className=" ">
         <CardTitle>
           Stock Movements
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6">
+      <CardContent className="m-0 p-0 ">
 
-        <div className="rounded-2xl overflow-hidden border">
+        <div className="rounded-2xl overflow-hidden  ">
 
           <table className="w-full">
 
@@ -37,6 +39,9 @@ export default function StockMovementTable({
                 <th className="p-3 text-left">
                   Date
                 </th>
+                <th className="p-3 text-left">
+                 Info
+                </th>
 
                 <th className="p-3 text-left">
                   Product
@@ -45,7 +50,7 @@ export default function StockMovementTable({
                 <th className="p-3 text-center">
                   Qty
                 </th>
-
+  
                 <th className="p-3 text-left">
                   From
                 </th>
@@ -77,7 +82,7 @@ export default function StockMovementTable({
                 <tr
                   key={movement.id}
                   className="
-                    border-b
+                  
                     odd:bg-zinc-50
                     even:bg-zinc-100
                     hover:bg-blue-50
@@ -89,7 +94,9 @@ export default function StockMovementTable({
                       movement.createdAt
                     ).toLocaleString()}
                   </td>
-
+  <td className="p-3">
+                  {movement.name}-{movement.locationCode}- {movement.responsiblePerson}
+                  </td>
                   <td className="p-3">
                     {movement.productName}
                   </td>
@@ -97,13 +104,14 @@ export default function StockMovementTable({
                   <td className="text-center">
                     {movement.quantity}
                   </td>
+                 
 
                   <td className="p-3">
-                    {movement.fromLocationName}
+                    {movement.fromLocationType}
                   </td>
 
                   <td className="p-3">
-                    {movement.toLocationName}
+                    {movement.toLocationType}
                   </td>
 
                   <td className="p-3">

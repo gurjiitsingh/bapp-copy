@@ -10,9 +10,12 @@ type LoadVehicleItem = {
   productId: string;
   quantity: number;
 };
-
 type LoadVehicleProps = {
   vehicleId: string;
+  vehicleName: string;
+  locationCode: string;
+  responsiblePerson: string;
+
   remarks?: string;
   createdBy?: string;
 
@@ -21,6 +24,9 @@ type LoadVehicleProps = {
 
 export async function loadVehicle({
   vehicleId,
+  vehicleName,
+  locationCode,
+  responsiblePerson,
   remarks,
   createdBy,
   items,
@@ -128,7 +134,7 @@ export async function loadVehicle({
 
         // TODO
         // createDistributionLedger 
-
+console.log("vehicleName------------------ts", vehicleName)
 await addStockMovement({
   tx,
 
@@ -136,6 +142,9 @@ await addStockMovement({
 
   productId: row.factory.productId,
   productName: row.factory.productName,
+  name:vehicleName,
+  locationCode,
+  responsiblePerson,
   productMode: row.factory.productMode,
 
   quantity: row.item.quantity,
@@ -143,7 +152,7 @@ await addStockMovement({
   fromLocationType: "FACTORY",
   fromLocationRef: "MAIN",
 
-  toLocationType: "VAN",
+  toLocationType: "TRUCK",
   toLocationRef: vehicleId,
 
   remarks,

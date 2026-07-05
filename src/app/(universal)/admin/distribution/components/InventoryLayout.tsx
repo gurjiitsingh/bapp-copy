@@ -76,7 +76,7 @@ export default function InventoryTabs() {
   );
 
   const isEstimate =
-  pathname === "/admin/stock-finished/estimate";
+  pathname === "/admin/distribution/unload-operator";
 
   return (
     <div className="  p-2 pt-5 md:px-6">
@@ -397,7 +397,7 @@ export default function InventoryTabs() {
 
 
 <Link
-  href="/admin/stock-finished/estimate"
+  href="/admin/distribution/unload-operator"
   className={`group rounded-3xl border shadow-sm p-5 transition ${
     isEstimate
       ? "bg-cyan-50 border-cyan-300 shadow-md"
@@ -415,7 +415,7 @@ export default function InventoryTabs() {
     isEstimate
       ? "text-white"
       : "text-cyan-600"
-  }
+  } 
 />
   </div>
 

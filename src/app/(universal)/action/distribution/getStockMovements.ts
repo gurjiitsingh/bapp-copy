@@ -10,9 +10,10 @@ export type StockMovementType = {
   productId: string;
   productName: string;
   productMode: "raw_stock" | "finished_stock" | "simple";
-
+locationCode:string;
+responsiblePersonName:string;
   quantity: number;
-
+name: string;
   fromLocationType: string;
   fromLocationRef: string;
   fromLocationName: string;
@@ -35,9 +36,16 @@ export async function getStockMovements() {
       .orderBy("createdAt", "desc")
       .get();
 
-    return snapshot.docs.map(
-      (doc) => doc.data() as StockMovementType
-    );
+return snapshot.docs.map((doc) => {
+  const data = doc.data();
+
+ 
+
+  return {
+    id: doc.id,
+    ...data,
+  } as StockMovementType;
+});
   } catch (error) {
     console.error(error);
     return [];
