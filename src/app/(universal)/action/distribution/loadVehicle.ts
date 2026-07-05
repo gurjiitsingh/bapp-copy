@@ -1,6 +1,10 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { getStockLocation } from "./getStockLocationTx";
+import { updateStockLocation } from "./updateStockLocation";
+import { addStockLocation } from "./addStockLocationTx";
+import { addStockMovement } from "./addStockMovement";
 
 type LoadVehicleItem = {
   productId: string;
@@ -23,7 +27,7 @@ export async function loadVehicle({
 }: LoadVehicleProps) {
   const db = adminDb;
 
-console.log("veh---------------", items)
+
 
   try {
     if (!vehicleId) {
@@ -45,25 +49,110 @@ console.log("veh---------------", items)
       // 1. READ
       // =========================
 
-      // Read Factory locations
+      const factoryStocks = [];
 
-      // Read Van locations
+      for (const item of items) {
+        const factory = await getStockLocation({
+          tx,
+          productId: item.productId,
+          locationType: "FACTORY",
+          locationRef: "MAIN",
+        });
+
+        if (!factory) {
+          throw new Error("Factory stock not found");
+        }
+
+
+   
+
+        const van = await getStockLocation({
+          tx,
+          productId: item.productId,
+          locationType: "VAN",
+          locationRef: vehicleId,
+        });
+
+        factoryStocks.push({
+          item,
+          factory,
+          van,
+        });
+
+
+
+      }
 
       // =========================
       // 2. VALIDATE
       // =========================
 
-      // Factory stock >= Load Qty ?
+      for (const row of factoryStocks) {
+
+
+        if (row.factory.quantity < row.item.quantity) {
+          throw new Error(
+            `${row.factory.productName} has insufficient stock.`
+          );
+        }
+      }
 
       // =========================
       // 3. WRITE
       // =========================
 
-      // Factory --
+      for (const row of factoryStocks) {
+        await updateStockLocation({
+          tx,
+          snap: row.factory,
+          quantity: -row.item.quantity,
+        });
 
-      // Van ++
 
-      // Distribution Ledger
+
+
+        await addStockLocation({
+          tx,
+          existing: row.van,
+          productId: row.factory.productId,
+          productName: row.factory.productName,
+          productMode: row.factory.productMode as
+            | "raw_stock"
+            | "finished_stock"
+            | "simple",
+          locationType: "VAN",
+          locationRef: vehicleId,
+          quantity: row.item.quantity,
+        });
+
+
+        // TODO
+        // createDistributionLedger 
+
+await addStockMovement({
+  tx,
+
+  movementType: "TRANSFER",
+
+  productId: row.factory.productId,
+  productName: row.factory.productName,
+  productMode: row.factory.productMode,
+
+  quantity: row.item.quantity,
+
+  fromLocationType: "FACTORY",
+  fromLocationRef: "MAIN",
+
+  toLocationType: "VAN",
+  toLocationRef: vehicleId,
+
+  remarks,
+
+  createdBy,
+});
+
+
+      }
     });
 
     return {

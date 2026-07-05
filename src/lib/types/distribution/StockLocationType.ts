@@ -13,5 +13,5 @@ productMode: string;
 
   quantity: number;
 
-//  updatedAt: number;
+   updatedAt: number;
 };

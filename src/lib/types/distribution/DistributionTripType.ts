@@ -11,8 +11,8 @@ export type DistributionTripType = {
   vehicleId: string;
   vehicleName: string;
 
-  driverId: string;
-  driverName: string;
+  responsiblePersonId: string;
+  responsiblePersonName: string;
 
   helperId?: string;
   helperName?: string;

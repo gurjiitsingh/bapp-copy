@@ -14,14 +14,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Truck } from "lucide-react";
 
 import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { loadVehicle } from "@/app/(universal)/action/distribution/loadVehicle";
 import { VehicleType } from "@/lib/types/distribution/VehicleType";
+import { useEffect, useState } from "react";
+import { getStockLocationsAll } from "@/app/(universal)/action/distribution/getStockLocationsAll";
+import toast from "react-hot-toast";
 
-type Props = {
-  factoryStock: StockLocationType[];
-  vehicles: VehicleType[];
-};
 
 type LoadVehicleFormType = {
   vehicleId: string;
@@ -33,12 +32,18 @@ type LoadVehicleFormType = {
   }[];
 };
 
-export default function LoadVehicleForm({
+type Props = {
+  vehicles: VehicleType[];
+  factoryStock: StockLocationType[];
+};
+
+export default function LoadVehicleFormOeprator({
   factoryStock,
   vehicles,
 }: Props) {
 
-  
+
+
 
   const form = useForm<LoadVehicleFormType>({
     defaultValues: {
@@ -51,11 +56,48 @@ export default function LoadVehicleForm({
     },
   });
 
+
+
   const vehicleId = form.watch("vehicleId");
+console.log("vehicleId:", vehicleId);
+  const [factoryData, setFactoryData] =
+    useState<StockLocationType[]>(factoryStock);
+
+  const [vanStock, setVanStock] =
+    useState<StockLocationType[]>([]);
+
+  const fetchVanStock = async (vanId: string) => {
+    console.log("vehicleId =", vehicleId);
+    if (!vanId) {
+      setVanStock([]);
+      return;
+    }
+
+    const result = await getStockLocationsAll({
+      locationType: "VAN",
+      locationRef: vanId,
+    });
+
+    setVanStock(result);
+  };
+
+  useEffect(() => {
+    fetchVanStock(vehicleId);
+  }, [vehicleId]);
 
   const selectedVehicle = vehicles.find(
     (v) => v.id === vehicleId
   );
+  console.log("selectedVehicle:", selectedVehicle);
+
+  const vanMap = new Map(
+    vanStock.map((x) => [x.productId, x.quantity])
+  );
+
+  const rows = factoryData.map((item) => ({
+    ...item,
+    vanQuantity: vanMap.get(item.productId) ?? 0,
+  }));
 
   const onSubmit = async (data: LoadVehicleFormType) => {
     const items = data.items.filter((x) => x.quantity > 0);
@@ -68,14 +110,80 @@ export default function LoadVehicleForm({
 
     console.log(result);
 
-    if (!result.success) {
-      alert(result.message);
-      return;
-    }
+  if (!result.success) {
+    toast.error(result.message);
+    return;
+  }
 
-    alert(result.message);
+    // ==========================
+    // Update Factory Stock
+    // ==========================
 
-    form.reset();
+    setFactoryData((prev) =>
+      prev.map((stock) => {
+        const loaded = items.find(
+          (i) => i.productId === stock.productId
+        );
+
+        if (!loaded) return stock;
+
+        return {
+          ...stock,
+          quantity: stock.quantity - loaded.quantity,
+        };
+      })
+    );
+
+    // ==========================
+    // Update Van Stock
+    // ==========================
+
+    setVanStock((prev) => {
+      const updated = [...prev];
+
+      for (const loaded of items) {
+        const index = updated.findIndex(
+          (x) => x.productId === loaded.productId
+        );
+
+        if (index >= 0) {
+          updated[index] = {
+            ...updated[index],
+            quantity:
+              updated[index].quantity + loaded.quantity,
+          };
+        } else {
+          const product = factoryData.find(
+            (x) => x.productId === loaded.productId
+          );
+
+          if (product) {
+            updated.push({
+              ...product,
+              id: `${product.productId}_VAN_${data.vehicleId}`,
+              locationType: "VAN",
+              locationRef: data.vehicleId,
+              quantity: loaded.quantity,
+            });
+          }
+        }
+      }
+
+      return updated;
+    });
+
+   toast.success(result.message);
+
+    await fetchVanStock(data.vehicleId);
+
+    form.reset({
+      vehicleId: data.vehicleId,
+      remarks: "",
+      items: factoryData.map((item) => ({
+        productId: item.productId,
+        quantity: 0,
+      })),
+    });
   };
 
 
@@ -102,73 +210,97 @@ export default function LoadVehicleForm({
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="p-6 space-y-6">
 
-              {/* Header */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Vehicle */}
 
-                <div>
-                  <label className="text-sm font-medium">Vehicle</label>
+          <div className="flex flex-col gap-2">
+  <label className="label-style-4">
+    Vehicle
+  </label>
 
-                  <Select
-                    onValueChange={(value) =>
-                      form.setValue("vehicleId", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Vehicle" />
-                    </SelectTrigger>
+  <Controller
+    control={form.control}
+    name="vehicleId"
+    render={({ field }) => (
+      <Select
+        value={field.value}
+        onValueChange={field.onChange}
+      >
+        <SelectTrigger className="w-full bg-white text-black border border-gray-300">
+          <SelectValue placeholder="Select Vehicle" />
+        </SelectTrigger>
 
-                    <SelectContent>
-                      {vehicles.map((v) => (
-                        <SelectItem
-                          key={v.id}
-                          value={v.id}
-                        >
-                          {v.name} ({v.locationCode})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+        <SelectContent className="bg-white border border-gray-300">
+          {vehicles.map((v) => (
+            <SelectItem
+              key={v.id}
+              value={v.id}
+            >
+              {v.name} ({v.locationCode})
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    )}
+  />
+</div>
 
-                  <input
-                    type="hidden"
-                    {...form.register("vehicleId")}
-                  />
-                </div>
+                {/* Driver */}
 
-                <div>
-                  <label className="text-sm font-medium">Driver</label>
+                <div className="flex flex-col gap-2">
+                  <label className="label-style-4">
+                    Driver
+                  </label>
 
                   <Input
                     value={selectedVehicle?.responsiblePersonName || ""}
                     placeholder="Auto Selected"
                     disabled
+                    className="input-style-4 bg-gray-100"
                   />
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium">Loading Date</label>
+                {/* Loading Date */}
 
-                  <Input type="date" />
+                <div className="flex flex-col gap-2">
+                  <label className="label-style-4">
+                    Loading Date
+                  </label>
+
+                  <Input
+                    type="date"
+                    className="input-style-4"
+                  />
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium">Reference</label>
+                {/* Reference */}
 
-                  <Input placeholder="Optional" />
+                <div className="flex flex-col gap-2">
+                  <label className="label-style-4">
+                    Reference
+                  </label>
+
+                  <Input
+                    placeholder="Optional"
+                    className="input-style-4"
+                  />
                 </div>
 
               </div>
 
-              <div>
-                <label className="text-sm font-medium">
+              {/* Remarks */}
+
+              <div className="flex flex-col gap-2">
+                <label className="label-style-4">
                   Remarks
                 </label>
 
                 <Textarea
                   placeholder="Remarks..."
+                  className="input-style-4 min-h-[110px] resize-none"
                 />
               </div>
 
@@ -226,7 +358,7 @@ export default function LoadVehicleForm({
                   </thead>
 
                   <tbody>
-                    {factoryStock.map((item, index) => (
+                    {rows.map((item, index) => (
                       <tr
                         key={item.id}
                         className="
@@ -245,8 +377,8 @@ export default function LoadVehicleForm({
                           {item.quantity}
                         </td>
 
-                        <td className="text-center">
-                          0
+                        <td className="text-center font-semibold">
+                          {item.vanQuantity}
                         </td>
 
                         <td className="p-2">

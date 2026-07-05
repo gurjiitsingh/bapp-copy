@@ -11,8 +11,9 @@ import { processRawInventory } from "../inventory/processRawInventory";
 import { applyRawInventoryWrites } from "../inventory/rawInventory/applyRawInventoryWrites";
 import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
 import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryData";
-import { addStockLocation } from "../distribution/addStockLocation";
+ 
 import { getStockLocation } from "../distribution/getStockLocation";
+import { addStockLocationTx } from "../distribution/addStockLocation";
 
 
 type AdjustStockType = {
@@ -114,7 +115,7 @@ if (direction === "IN") {
 // ✅ Update Factory Location
 // =========================
 if (direction === "IN") {
-await addStockLocation({
+await addStockLocationTx({
   tx,
   stockLocation: factoryLocation,
 

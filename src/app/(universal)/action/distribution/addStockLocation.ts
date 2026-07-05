@@ -26,7 +26,7 @@ type AddStockLocationProps = {
 
 
 
-export async function addStockLocation({
+export async function addStockLocationTx({
   tx,
   stockLocation,
 

@@ -4,12 +4,13 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 export type AddVehicleType = {
-  vehicleNo: string;
+  locationCode: string;
   name: string;
 
   type: "PICKUP" | "VAN" | "TRUCK";
 
-  driverId?: string;
+  responsiblePersonId?: string;
+  responsiblePersonName?: string;
 
   capacity?: number;
 
@@ -17,15 +18,16 @@ export type AddVehicleType = {
 };
 
 export async function addVehicle({
-  vehicleNo,
+  locationCode,
   name,
   type,
-  driverId,
+  responsiblePersonId,
+  responsiblePersonName,
   capacity,
   remarks,
-}: AddVehicleType) {
+}: AddVehicleType) { 
   try {
-    if (!vehicleNo.trim()) {
+    if (!locationCode.trim()) {
       return {
         success: false,
         message: "Vehicle number is required.",
@@ -40,8 +42,8 @@ export async function addVehicle({
     }
 
     const existing = await adminDb
-      .collection("vehicles")
-      .where("vehicleNo", "==", vehicleNo.trim().toUpperCase())
+      .collection("stockLocations")
+      .where("locationCode", "==", locationCode.trim().toUpperCase())
       .limit(1)
       .get();
 
@@ -52,18 +54,18 @@ export async function addVehicle({
       };
     }
 
-    const ref = adminDb.collection("vehicles").doc();
+    const ref = adminDb.collection("stockLocations").doc();
 
     await ref.set({
       id: ref.id,
 
-      vehicleNo: vehicleNo.trim().toUpperCase(),
+      locationCode: locationCode.trim().toUpperCase(),
       name: name.trim(),
 
       type,
 
-      driverId: driverId || "",
-
+      responsiblePersonId: responsiblePersonId || "",
+ responsiblePersonName:  responsiblePersonName || "",
       capacity: capacity || 0,
 
       remarks: remarks || "",

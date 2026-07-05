@@ -16,12 +16,13 @@ type DriverType = {
 };
 
 type VehicleFormType = {
-  vehicleNo: string;
+  locationCode: string;
   name: string;
 
   type: "PICKUP" | "VAN" | "TRUCK";
 
-  driverId: string;
+  responsiblePersonId: string;
+  responsiblePersonName: string;
 
   capacity?: number;
 
@@ -40,23 +41,25 @@ export default function VehicleForm({
   drivers,
 }: Props) {
 
-  console.log("d----------------", drivers)
+ console.log("user name------------",drivers)
   const [isSubmitting, startTransition] = useTransition();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-  } = useForm<VehicleFormType>({
-    defaultValues: {
-      vehicleNo: "",
-      name: "",
-      type: "PICKUP",
-      driverId: "",
-      capacity: undefined,
-      remarks: "",
-    },
-  });
+const {
+  register,
+  handleSubmit,
+  reset,
+  setValue,
+} = useForm<VehicleFormType>({
+  defaultValues: {
+    locationCode: "",
+    name: "",
+    type: "PICKUP",
+    responsiblePersonId: "",
+    responsiblePersonName: "",
+    capacity: undefined,
+    remarks: "",
+  },
+});
 
   const onSubmit = (data: VehicleFormType) => {
     startTransition(async () => {
@@ -110,7 +113,7 @@ export default function VehicleForm({
                 </label>
 
                 <input
-                  {...register("vehicleNo")}
+                  {...register("locationCode")}
                   className="input-style-4"
                   placeholder="PB10AB1234"
                 />
@@ -170,10 +173,27 @@ export default function VehicleForm({
                 <label className="label-style-4">
                   Driver
                 </label>
+                <input
+  type="hidden"
+  {...register("responsiblePersonName")}
+/>
 
-            <select
-  {...register("driverId")}
+<select
+  {...register("responsiblePersonId")}
   className="input-style-4"
+  onChange={(e) => {
+    const id = e.target.value;
+
+    const driver = drivers.find(
+      (d) => d.id === id
+    );
+
+    setValue("responsiblePersonId", id);
+    setValue(
+      "responsiblePersonName",
+      driver?.fullName ?? ""
+    );
+  }}
 >
   <option value="">
     Select Driver
@@ -184,8 +204,10 @@ export default function VehicleForm({
       key={driver.id}
       value={driver.id}
     >
-      {driver.username}
-      {driver.employeeId ? ` (${driver.employeeId})` : ""}
+      {driver.fullName}
+      {driver.employeeId
+        ? ` (${driver.employeeId})`
+        : ""}
     </option>
   ))}
 </select>

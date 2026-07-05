@@ -5,12 +5,12 @@ import { adminDb } from "@/lib/firebaseAdmin";
 export type VehicleType = {
   id: string;
 
-  vehicleNo: string;
+  locationCode: string;
   name: string;
   type: "PICKUP" | "VAN" | "TRUCK";
 
-  driverId?: string;
-  driverName?: string;
+  responsiblePersonId?: string;
+  responsiblePersonName?: string;
 
   capacity?: number;
 
@@ -23,7 +23,7 @@ export async function getVehicles(): Promise<VehicleType[]> {
   const data: VehicleType[] = [];
 
   const snapshot = await adminDb
-    .collection("vehicles")
+    .collection("stockLocations")
     .where("active", "==", true)
     .orderBy("name")
     .get();
@@ -34,12 +34,12 @@ export async function getVehicles(): Promise<VehicleType[]> {
     data.push({
       id: doc.id,
 
-      vehicleNo: d.vehicleNo,
+      locationCode: d.locationCode,
       name: d.name,
       type: d.type,
 
-      driverId: d.driverId,
-      driverName: d.driverName,
+      responsiblePersonId: d.responsiblePersonId,
+      responsiblePersonName: d.responsiblePersonName,
 
       capacity: d.capacity,
 

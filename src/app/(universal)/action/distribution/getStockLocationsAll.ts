@@ -12,6 +12,8 @@ export async function getStockLocationsAll({
   locationType,
   locationRef,
 }: GetStockLocationsProps = {}): Promise<StockLocationType[]> {
+
+ 
   try {
     let query: FirebaseFirestore.Query = adminDb.collection("stockLocation");
 
