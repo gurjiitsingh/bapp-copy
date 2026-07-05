@@ -11,6 +11,8 @@ import { processRawInventory } from "../inventory/processRawInventory";
 import { applyRawInventoryWrites } from "../inventory/rawInventory/applyRawInventoryWrites";
 import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
 import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryData";
+import { addStockLocation } from "../distribution/addStockLocation";
+import { getStockLocation } from "../distribution/getStockLocation";
 
 
 type AdjustStockType = {
@@ -56,6 +58,18 @@ export async function updateFinishedItemStock({
       { productId: id, quantity }
     ]);
   }
+
+
+  //=============================
+  // READ STOCK LOCATION
+  //=============================
+
+const factoryLocation = await getStockLocation({
+  tx,
+  productId: id,
+  locationType: "FACTORY",
+  locationRef: "MAIN",
+});
  
   // =========================
   // ✅ 2. VALIDATE
@@ -94,6 +108,30 @@ if (direction === "IN") {
       "production-" + id
     );
   }
+
+
+// =========================
+// ✅ Update Factory Location
+// =========================
+if (direction === "IN") {
+await addStockLocation({
+  tx,
+  stockLocation: factoryLocation,
+
+  productId: id,
+  productName,
+
+  productMode: "finished_stock",
+
+  locationType: "FACTORY",
+  locationRef: "MAIN",
+
+  quantity,
+});
+}
+
+
+
 
   
 });
