@@ -2,10 +2,11 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
+import { VehicleType } from "@/lib/types/distribution/VehicleType";
 
 export async function getStockLocationById(
   id: string
-): Promise<StockLocationType | null> {
+): Promise<VehicleType | null> {
 
  
   try {
@@ -18,7 +19,7 @@ export async function getStockLocationById(
       return null;
     }
  
-    return doc.data() as StockLocationType;
+    return doc.data() as VehicleType;
   } catch (error) {
     console.error("❌ getStockLocationById:", error);
     return null;

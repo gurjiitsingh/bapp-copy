@@ -12,7 +12,7 @@ type AddStockLocationProps = {
   productId: string;
   productName: string;
 
-  productMode: "raw_stock" | "finished_stock" | "simple";
+ productMode?: "raw_stock" | "finished_stock" | "simple";
 
   locationType: "FACTORY" | "VAN" | "WAREHOUSE";
   locationRef: string;
@@ -25,7 +25,7 @@ export async function addStockLocation({
   existing,
   productId,
   productName,
-  productMode,
+//  productMode,
   locationType,
   locationRef,
   quantity,
@@ -49,7 +49,7 @@ export async function addStockLocation({
     productId,
     productName,
 
-    productMode,
+  //  productMode,
 
     locationType,
     locationRef,

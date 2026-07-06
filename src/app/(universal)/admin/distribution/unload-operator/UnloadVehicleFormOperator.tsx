@@ -133,9 +133,9 @@ const onSubmit = async (
 
   const result = await unloadVehicle({
     vehicleId: data.vehicleId,
-  vehicleName: selectedVehicle.name,
-  locationCode: selectedVehicle.locationCode,
-  responsiblePerson: selectedVehicle.responsiblePersonName,
+  vehicleName: selectedVehicle!.name ,
+  locationCode: selectedVehicle!.locationCode,
+  responsiblePerson: selectedVehicle!.responsiblePersonName,
   remarks: data.remarks,
   items,
   });
@@ -286,7 +286,7 @@ const onSubmit = async (
 
               {/* Date */}
 
-              <div className="flex flex-col gap-2">
+              {/* <div className="flex flex-col gap-2">
                 <label className="label-style-4">
                   Unloading Date
                 </label>
@@ -295,7 +295,7 @@ const onSubmit = async (
                   type="date"
                   className="input-style-4"
                 />
-              </div>
+              </div> */}
 
               {/* Reference */}
 
@@ -312,7 +312,7 @@ const onSubmit = async (
 
             </div>
 
-            <div className="flex flex-col gap-2">
+            {/* <div className="flex flex-col gap-2">
               <label className="label-style-4">
                 Remarks
               </label>
@@ -321,7 +321,7 @@ const onSubmit = async (
                 className="input-style-4 min-h-[110px]"
                 placeholder="Remarks..."
               />
-            </div>
+            </div> */}
 
           </CardContent>
         </Card>
@@ -338,7 +338,7 @@ const onSubmit = async (
 
           <CardContent className="p-6">
 
-            <div className="rounded-2xl overflow-hidden border border-gray-200">
+            <div className="rounded-2xl overflow-hidden  ">
 
               <table className="w-full">
 
@@ -368,7 +368,7 @@ const onSubmit = async (
                     <tr
                       key={item.productId}
                       className="
-                        border-b
+                        
                         odd:bg-zinc-50
                         even:bg-zinc-100
                         hover:bg-blue-50
@@ -383,21 +383,23 @@ const onSubmit = async (
                       </td>
 
                       <td className="text-center font-semibold text-blue-700">
-                        {item.vanQuantity}
+                        {item.quantity}
                       </td>
 
                       <td className="p-2">
-                        <Input
-                          type="number"
-                          min={0}
-                          max={item.vanQuantity}
-                          {...form.register(
-                            `items.${index}.quantity`,
-                            {
-                              valueAsNumber: true,
-                            }
-                          )}
-                        />
+                       <Input
+  type="number"
+  min={0}
+  max={item.quantity}
+  {...form.register(`items.${index}.quantity`, {
+    valueAsNumber: true,
+  })}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+/>
                       </td>
                     </tr>
                   ))}
@@ -444,7 +446,7 @@ const onSubmit = async (
                     {" "}
                     {rows.reduce(
                       (sum, item) =>
-                        sum + item.vanQuantity,
+                        sum + item.quantity,
                       0
                     )}
                   </strong>

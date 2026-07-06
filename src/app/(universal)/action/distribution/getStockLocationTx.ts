@@ -8,7 +8,7 @@ type GetStockLocationProps = {
 
   productId: string;
 
-  locationType: "FACTORY" | "VAN" | "WAREHOUSE";
+  locationType: "FACTORY" | "VAN" | "WAREHOUSE" | "TRUCK";
   locationRef: string;
 };
 

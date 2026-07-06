@@ -1,33 +1,9 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { StockMovementType } from "@/lib/types/distribution/StockMovementType";
 
-export type StockMovementType = {
-  id: string;
 
-  movementType: "TRANSFER";
-
-  productId: string;
-  productName: string;
-  productMode: "raw_stock" | "finished_stock" | "simple";
-locationCode:string;
-responsiblePersonName:string;
-  quantity: number;
-name: string;
-  fromLocationType: string;
-  fromLocationRef: string;
-  fromLocationName: string;
-
-  toLocationType: string;
-  toLocationRef: string;
-  toLocationName: string;
-
-  remarks: string;
-
-  createdBy: string;
-
-  createdAt: number;
-};
 
 export async function getStockMovements() {
   try {

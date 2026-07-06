@@ -8,36 +8,19 @@ import { Button } from "@/components/ui/button";
  
 import toast from "react-hot-toast";
 import { userDashboardType } from "@/lib/types/userDashboardType";
-import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
+ 
 import { updateVehicle } from "@/app/(universal)/action/distribution/editVehicle";
+import { VehicleType } from "@/lib/types/distribution/VehicleType";
+ 
 
 
-type DriverType = {
-  id: string;
-  name: string;
-};
 
-type VehicleEditFormType = {
-  id: string;
-
-  locationCode: string;
-  name: string;
-
-  type: "PICKUP" | "VAN" | "TRUCK";
-
-  responsiblePersonId: string;
-  responsiblePersonName: string;
-
-  capacity?: number;
-
-  remarks?: string;
-};
 
  
 
 type Props = {
   drivers: userDashboardType[];
-  location: StockLocationType;
+  location: VehicleType;
 };
 
 export default function VehicleEditForm({
@@ -53,13 +36,13 @@ const {
   handleSubmit,
   reset,
   setValue,
-} = useForm<VehicleEditFormType>({
+} = useForm<VehicleType>({
 defaultValues: {
   id: location.id,
 
   locationCode: location.locationCode,
   name: location.name,
-  type: location.type,
+  type: location.type, 
   responsiblePersonId: location.responsiblePersonId,
   responsiblePersonName: location.responsiblePersonName,
   capacity: location.capacity,
@@ -67,7 +50,7 @@ defaultValues: {
 },
 });
 
-const onSubmit = (data: VehicleEditFormType) => {
+const onSubmit = (data: VehicleType) => {
  console.log(data);
 
   startTransition(async () => {

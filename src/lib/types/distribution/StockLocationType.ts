@@ -2,7 +2,7 @@ export type StockLocationType = {
   id: string; // `${productId}_${locationType}_${locationRef}`
 
   productId: string;
-productMode: string;
+  productMode?: string;
   // Snapshot
   productName: string;
   categoryId?: string;

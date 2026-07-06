@@ -1,12 +1,12 @@
 "use client";
 
-import { StockMovementType } from "@/app/(universal)/action/distribution/getStockMovements";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { StockMovementType } from "@/lib/types/distribution/StockMovementType";
 
  
 

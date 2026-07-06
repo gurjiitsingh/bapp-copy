@@ -70,12 +70,12 @@ export async function loadVehicle({
         }
 
 
-   
+
 
         const van = await getStockLocation({
           tx,
           productId: item.productId,
-          locationType: "VAN",
+          locationType: "TRUCK",
           locationRef: vehicleId,
         });
 
@@ -122,10 +122,10 @@ export async function loadVehicle({
           existing: row.van,
           productId: row.factory.productId,
           productName: row.factory.productName,
-          productMode: row.factory.productMode as
-            | "raw_stock"
-            | "finished_stock"
-            | "simple",
+          // productMode: row.factory.productMode as
+          //   | "raw_stock"
+          //   | "finished_stock"
+          //   | "simple",
           locationType: "VAN",
           locationRef: vehicleId,
           quantity: row.item.quantity,
@@ -134,31 +134,31 @@ export async function loadVehicle({
 
         // TODO
         // createDistributionLedger 
-console.log("vehicleName------------------ts", vehicleName)
-await addStockMovement({
-  tx,
 
-  movementType: "TRANSFER",
+        await addStockMovement({
+          tx,
 
-  productId: row.factory.productId,
-  productName: row.factory.productName,
-  name:vehicleName,
-  locationCode,
-  responsiblePerson,
-  productMode: row.factory.productMode,
+          movementType: "TRANSFER",
 
-  quantity: row.item.quantity,
+          productId: row.factory.productId,
+          productName: row.factory.productName,
+          name: vehicleName,
+          locationCode,
+          responsiblePerson,
+          //productMode: row.factory.productMode,
 
-  fromLocationType: "FACTORY",
-  fromLocationRef: "MAIN",
+          quantity: row.item.quantity,
 
-  toLocationType: "TRUCK",
-  toLocationRef: vehicleId,
+          fromLocationType: "FACTORY",
+          fromLocationRef: "MAIN",
 
-  remarks,
+          toLocationType: "TRUCK",
+          toLocationRef: vehicleId,
 
-  createdBy,
-});
+          remarks,
+
+          createdBy,
+        });
 
 
       }

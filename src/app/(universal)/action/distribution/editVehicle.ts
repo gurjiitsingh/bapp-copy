@@ -1,23 +1,10 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { VehicleType } from "@/lib/types/distribution/VehicleType";
 import { revalidatePath, revalidateTag } from "next/cache";
 
-export type UpdateVehicleType = {
-  id: string;
 
-  locationCode: string;
-  name: string;
-
-  type: "PICKUP" | "VAN" | "TRUCK";
-
-  responsiblePersonId?: string;
-  responsiblePersonName?: string;
-
-  capacity?: number;
-
-  remarks?: string;
-};
 
 export async function updateVehicle({
   id,
@@ -28,7 +15,7 @@ export async function updateVehicle({
   responsiblePersonName,
   capacity,
   remarks,
-}: UpdateVehicleType) {
+}: VehicleType) {
   try {
     if (!id) {
       return {

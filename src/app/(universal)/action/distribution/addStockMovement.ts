@@ -7,18 +7,18 @@ export type AddStockMovementProps = {
   tx: Transaction;
 
   movementType:
-    | "TRANSFER"
-    | "SALE"
-    | "RETURN"
-    | "ADJUSTMENT";
+  | "TRANSFER"
+  | "SALE"
+  | "RETURN"
+  | "ADJUSTMENT";
 
   productId: string;
   productName: string;
-  productMode: "raw_stock" | "finished_stock" | "simple";
-locationCode: string;
-          responsiblePerson: string;
+  productMode?: "raw_stock" | "finished_stock" | "simple";
+  locationCode: string;
+  responsiblePerson: string;
   quantity: number;
-name:string;
+  name: string;
   fromLocationType: string;
   fromLocationRef: string;
 
@@ -36,11 +36,11 @@ export async function addStockMovement({
 
   productId,
   productName,
-  productMode,
-locationCode,
+  //productMode,
+  locationCode,
   responsiblePerson,
   quantity,
-name,
+  name,
   fromLocationType,
   fromLocationRef,
 
@@ -51,7 +51,7 @@ name,
 
   createdBy,
 }: AddStockMovementProps) {
- 
+
   const ref = adminDb.collection("stockMovements").doc();
 
   tx.set(ref, {
@@ -61,11 +61,11 @@ name,
 
     productId,
     productName,
-    productMode,
-locationCode,
-  responsiblePerson,
+    // productMode,
+    locationCode,
+    responsiblePerson,
     quantity,
-name,
+    name,
     fromLocationType,
     fromLocationRef,
 

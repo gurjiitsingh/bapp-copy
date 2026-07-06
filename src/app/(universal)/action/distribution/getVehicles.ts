@@ -1,23 +1,9 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { VehicleType } from "@/lib/types/distribution/VehicleType";
 
-export type VehicleType = {
-  id: string;
 
-  locationCode: string;
-  name: string;
-  type: "PICKUP" | "VAN" | "TRUCK";
-
-  responsiblePersonId?: string;
-  responsiblePersonName?: string;
-
-  capacity?: number;
-
-  remarks?: string;
-
-  active: boolean;
-};
 
 export async function getVehicles(): Promise<VehicleType[]> {
   const data: VehicleType[] = [];
@@ -46,6 +32,8 @@ export async function getVehicles(): Promise<VehicleType[]> {
       remarks: d.remarks,
 
       active: d.active,
+      createdAt: d.createdAt,
+  updatedAt: d.updatedAt,
     });
   });
 

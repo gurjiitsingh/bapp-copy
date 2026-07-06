@@ -272,7 +272,7 @@ const result = await loadVehicle({
 
                 {/* Loading Date */}
 
-                <div className="flex flex-col gap-2">
+                {/* <div className="flex flex-col gap-2">
                   <label className="label-style-4">
                     Loading Date
                   </label>
@@ -281,7 +281,7 @@ const result = await loadVehicle({
                     type="date"
                     className="input-style-4"
                   />
-                </div>
+                </div> */}
 
                 {/* Reference */}
 
@@ -300,7 +300,7 @@ const result = await loadVehicle({
 
               {/* Remarks */}
 
-              <div className="flex flex-col gap-2">
+              {/* <div className="flex flex-col gap-2">
                 <label className="label-style-4">
                   Remarks
                 </label>
@@ -309,7 +309,7 @@ const result = await loadVehicle({
                   placeholder="Remarks..."
                   className="input-style-4 min-h-[110px] resize-none"
                 />
-              </div>
+              </div> */}
 
             </CardContent>
           </Card>
@@ -388,16 +388,21 @@ const result = await loadVehicle({
                           {item.vanQuantity}
                         </td>
 
-                        <td className="p-2">
-                          <Input
-                            type="number"
-                            min={0}
-                            max={item.quantity}
-                            {...form.register(`items.${index}.quantity`, {
-                              valueAsNumber: true,
-                            })}
-                          />
-                        </td>
+                       <td className="p-2">
+  <Input
+    type="number"
+    min={0}
+    max={item.quantity}
+    {...form.register(`items.${index}.quantity`, {
+      valueAsNumber: true,
+    })}
+    onFocus={(e) => {
+      if (e.target.value === "0") {
+        e.target.value = "";
+      }
+    }}
+  />
+</td>
 
                         <td className="text-center">
                           <Button

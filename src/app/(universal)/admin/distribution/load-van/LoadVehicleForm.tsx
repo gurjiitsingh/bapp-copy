@@ -25,7 +25,7 @@ type Props = {
 
 type LoadVehicleFormType = {
   vehicleId: string;
-  vehicleName: string,
+  vehicleName?: string,
 
   remarks?: string;
 
@@ -61,10 +61,12 @@ export default function LoadVehicleForm({
 
   const onSubmit = async (data: LoadVehicleFormType) => {
     const items = data.items.filter((x) => x.quantity > 0);
-    console.log("selectedVehicle?.name---------------", selectedVehicle?.name)
+  
     const result = await loadVehicle({
       vehicleId: data.vehicleId,
-      vehicleName: selectedVehicle?.name,
+      vehicleName: selectedVehicle?.name ?? "",
+       locationCode: selectedVehicle?.locationCode ?? "",
+  responsiblePerson: selectedVehicle?.responsiblePersonName ?? "",
       remarks: data.remarks,
       items,
     });
