@@ -22,7 +22,7 @@ export async function getLoadVehicleStock({
 
     const vanQuery = adminDb
       .collection("stockLocation")
-      .where("locationType", "==", "VAN")
+      .where("locationType", "==", "TRUCK")
       .where("locationRef", "==", vehicleId)
       .orderBy("productName");
 

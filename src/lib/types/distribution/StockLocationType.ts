@@ -1,3 +1,5 @@
+import { StorageType } from "./StorageType";
+
 export type StockLocationType = {
   id: string; // `${productId}_${locationType}_${locationRef}`
 
@@ -8,7 +10,7 @@ export type StockLocationType = {
   categoryId?: string;
   categoryName?: string;
 
-  locationType: "FACTORY" | "VAN" | "WAREHOUSE";
+  locationType: StorageType; 
   locationRef: string; // MAIN, VAN01, WH01
 
   quantity: number;

@@ -1,13 +1,14 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { StorageType } from "@/lib/types/distribution/StorageType";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 export type AddVehicleType = {
   locationCode: string;
   name: string;
 
-  type: "PICKUP" | "VAN" | "TRUCK";
+  type: StorageType;
 
   responsiblePersonId?: string;
   responsiblePersonName?: string;

@@ -37,7 +37,7 @@ const tabs = [
   { name: "Dashboard", href: "/admin/stock-finished/" },
   { name: "Items", href: "/admin/stock-finished/" },
   { name: "New Item", href: "/admin/stock-finished/new" },
-  { name: "Sale", href: "/admin/stock-finished/sale/add" },
+  { name: "Sale", href: "/admin/distribution/truckdelivery-sale" },
   { name: "Adjust", href: "/admin/stock-finished/adjust-stock" },
   { name: "Transactions", href: "/admin/distribution/stock-movements" },
   { name: "Categories", href: "/admin/stock-finished/categories" },
@@ -52,7 +52,7 @@ export default function InventoryTabs() {
     "/admin/distribution/load-operator";
 
   const isSale = pathname.startsWith(
-    "/admin/stock-finished/sale"
+    "/admin/distribution/truckdelivery-sale"
   );
 
   const isCustomer = pathname.startsWith(
@@ -132,8 +132,8 @@ export default function InventoryTabs() {
 
 
 
-          {/* <Link
-            href="/admin/stock-finished/sale/add"
+          <Link
+            href="/admin/distribution/truckdelivery-sale"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isSale
                 ? "bg-orange-50 border-orange-300 shadow-md"
                 : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
@@ -161,7 +161,7 @@ export default function InventoryTabs() {
                   : "text-gray-800"
                 }`}
             >
-              Sell Products
+              Truck Sale
             </h3>
 
             <p
@@ -170,9 +170,9 @@ export default function InventoryTabs() {
                   : "text-gray-500"
                 }`}
             >
-              Sale Finished Products
+              Delivery Truck Sale
             </p>
-          </Link> */}
+          </Link>
 
         
 

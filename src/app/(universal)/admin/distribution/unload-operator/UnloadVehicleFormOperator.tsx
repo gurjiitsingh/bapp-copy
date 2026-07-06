@@ -81,7 +81,7 @@ const fetchVanStock = async (vanId: string) => {
   }
 
   const result = await getStockLocationsAll({
-    locationType: "VAN",
+    locationType: "TRUCK",
     locationRef: vanId,
   });
 
@@ -240,31 +240,31 @@ const onSubmit = async (
                   Vehicle
                 </label>
 
-                <Controller
-                  control={form.control}
-                  name="vehicleId"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger className="w-full bg-white">
-                        <SelectValue placeholder="Select Vehicle" />
-                      </SelectTrigger>
+               <Controller
+    control={form.control}
+    name="vehicleId"
+    render={({ field }) => (
+      <Select
+        value={field.value}
+        onValueChange={field.onChange}
+      >
+        <SelectTrigger className="w-full bg-white text-black border border-gray-300">
+          <SelectValue placeholder="Select Vehicle" />
+        </SelectTrigger>
 
-                      <SelectContent>
-                        {vehicles.map((v) => (
-                          <SelectItem
-                            key={v.id}
-                            value={v.id}
-                          >
-                            {v.name} ({v.locationCode})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+        <SelectContent className="bg-white border border-gray-300">
+          {vehicles.map((v) => (
+            <SelectItem
+              key={v.id}
+              value={v.id}
+            >
+              {v.name} ({v.locationCode})
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    )}
+  />
               </div>
 
               {/* Driver */}

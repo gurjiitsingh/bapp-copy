@@ -2,9 +2,10 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
+import { StorageType } from "@/lib/types/distribution/StorageType";
 
 type GetStockLocationsProps = {
-  locationType?: "FACTORY" | "VAN" | "WAREHOUSE";
+  locationType?: StorageType;
   locationRef?: string;
 };
 

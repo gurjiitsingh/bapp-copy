@@ -1,13 +1,14 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { StorageType } from "@/lib/types/distribution/StorageType";
 
 type GetStockLocationProps = {
   tx: FirebaseFirestore.Transaction;
 
   productId: string;
 
-  locationType: "FACTORY" | "VAN" | "WAREHOUSE";
+  locationType: StorageType;
   locationRef: string;
 };
 

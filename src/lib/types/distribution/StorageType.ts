@@ -5,4 +5,5 @@ export type StorageType =
   | "VAN"
   | "TRUCK"
   | "STORE"
-  | "WAHREHOUSE";
+  | "WAHREHOUSE"
+  | "FACTORY";

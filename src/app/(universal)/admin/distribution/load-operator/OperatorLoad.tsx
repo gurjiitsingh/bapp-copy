@@ -74,7 +74,7 @@ console.log("vehicleId:", vehicleId);
     }
 
     const result = await getStockLocationsAll({
-      locationType: "VAN",
+      locationType: "TRUCK",
       locationRef: vanId,
     });
 
@@ -168,7 +168,7 @@ const result = await loadVehicle({
             updated.push({
               ...product,
               id: `${product.productId}_VAN_${data.vehicleId}`,
-              locationType: "VAN",
+              locationType: "TRUCK",
               locationRef: data.vehicleId,
               quantity: loaded.quantity,
             });

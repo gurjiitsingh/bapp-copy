@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { addVehicle } from "@/app/(universal)/action/distribution/addVehicle";
 import toast from "react-hot-toast";
 import { userDashboardType } from "@/lib/types/userDashboardType";
+import { StorageType } from "@/lib/types/distribution/StorageType";
 
 
 type DriverType = {
@@ -19,7 +20,7 @@ type VehicleFormType = {
   locationCode: string;
   name: string;
 
-  type: "PICKUP" | "VAN" | "TRUCK";
+  type: StorageType; 
 
   responsiblePersonId: string;
   responsiblePersonName: string;

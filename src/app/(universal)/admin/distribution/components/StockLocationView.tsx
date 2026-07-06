@@ -53,7 +53,7 @@ export default function StockLocationView({
 
       <Button
         asChild
-        variant={selectedLocation === "VAN" ? "default" : "outline"}
+        variant={selectedLocation === "TRUCK" ? "default" : "outline"}
       >
         <Link href="/distribution/stock-location?locationType=VAN">
           Van
@@ -128,7 +128,7 @@ export default function StockLocationView({
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
                     item.locationType === "FACTORY"
                       ? "bg-green-100 text-green-700"
-                      : item.locationType === "VAN"
+                      : item.locationType === "TRUCK"
                       ? "bg-blue-100 text-blue-700"
                       : "bg-amber-100 text-amber-700"
                   }`}

@@ -22,7 +22,7 @@ type LoadVehicleProps = {
   items: LoadVehicleItem[];
 };
 
-export async function loadVehicle({
+export async function loadVehicle({ 
   vehicleId,
   vehicleName,
   locationCode,
@@ -126,7 +126,7 @@ export async function loadVehicle({
           //   | "raw_stock"
           //   | "finished_stock"
           //   | "simple",
-          locationType: "VAN",
+          locationType: "TRUCK",
           locationRef: vehicleId,
           quantity: row.item.quantity,
         });

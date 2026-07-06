@@ -16,6 +16,7 @@ export type AddStockMovementProps = {
   productName: string;
   productMode?: "raw_stock" | "finished_stock" | "simple";
   locationCode: string;
+  customerName?: string,
   responsiblePerson: string;
   quantity: number;
   name: string;
@@ -37,6 +38,7 @@ export async function addStockMovement({
   productId,
   productName,
   //productMode,
+  customerName ="",
   locationCode,
   responsiblePerson,
   quantity,
@@ -62,6 +64,7 @@ export async function addStockMovement({
     productId,
     productName,
     // productMode,
+    customerName,
     locationCode,
     responsiblePerson,
     quantity,
