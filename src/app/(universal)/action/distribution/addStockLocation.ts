@@ -1,8 +1,8 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
- 
- import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
+
+import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
 import { StorageType } from "@/lib/types/distribution/StorageType";
 import admin from "firebase-admin";
 
@@ -13,6 +13,10 @@ type AddStockLocationProps = {
 
   productId: string;
   productName: string;
+  sellingPrice: number;
+  wholesalePrice: number;
+  costPrice: number;
+  avgCost:  number;
 
   categoryId?: string;
   categoryName?: string;
@@ -33,7 +37,10 @@ export async function addStockLocationTx({
 
   productId,
   productName,
-
+  sellingPrice =0,
+  wholesalePrice = 0,
+  costPrice = 0,
+  avgCost = 0,
   productMode,
 
   locationType,
@@ -42,27 +49,29 @@ export async function addStockLocationTx({
   quantity,
 }: AddStockLocationProps) {
   const id = `${productId}_${locationType}_${locationRef}`;
-
+ 
   const ref = stockLocation.ref;
+  
 
   if (!stockLocation.exists) {
     const data: StockLocationType = {
       id,
       productId,
       productName,
-
-    //   categoryId,
-    //   categoryName,
-
+      sellingPrice,
+      wholesalePrice,
+      costPrice,
+      avgCost,
+      //   categoryId,
+      //   categoryName,
       productMode,
-
       locationType,
       locationRef,
-
       quantity,
-
       updatedAt: Date.now(),
     };
+    
+    
 
     tx.set(ref, data);
     return;

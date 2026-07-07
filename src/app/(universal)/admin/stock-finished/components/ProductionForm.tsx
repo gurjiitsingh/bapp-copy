@@ -5,11 +5,12 @@ import { useForm } from "react-hook-form";
 import { Search, Package2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
- 
+
 import { updateFinishedItemStock } from "@/app/(universal)/action/stock-finished/updateFinshedItemStock";
 
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { ProductStockType } from "@/lib/types/productStockType";
+import toast from "react-hot-toast";
 type Props = {
   products: ProductStockType[];
 };
@@ -71,49 +72,54 @@ export default function ProductionForm({
     if (isSubmitting) return;
 
     if (!selectedProduct) {
-      alert("Please select a product");
+      toast.error("Please select a product.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const result =
-        await updateFinishedItemStock({
-          id: data.id,
-          productName: selectedProduct.name,
-          direction: "IN",
-          quantity: Number(data.quantity),
-          transactionUnit: data.transactionUnit,
-          note: data.note,
-          createdBy: "admin",
-        });
+      const result = await updateFinishedItemStock({
+        id: data.id,
+        productName: selectedProduct.name,
+        sellingPrice: selectedProduct.sellingPrice,
+        wholesalePrice: selectedProduct.wholesalePrice!,
+        costPrice: selectedProduct.costPrice,
+        avgCost: selectedProduct.avgCost!,
+        direction: "IN",
+        quantity: Number(data.quantity),
+        transactionUnit: data.transactionUnit,
+        note: data.note,
+        createdBy: "admin",
+      });
 
-      if (result.success) {
-        setSelectedProduct({
-          ...selectedProduct,
-          currentStock:
-            (selectedProduct.currentStock || 0) +
-            Number(data.quantity),
-        });
-
-        reset({
-          id: selectedProduct.id,
-          quantity: 0,
-          transactionUnit: transactionUnit,
-          note: "",
-        });
-      } else {
-        alert(result.message);
+      if (!result.success) {
+        toast.error(result.message);
+        return;
       }
+
+      toast.success(result.message);
+
+      setSelectedProduct({
+        ...selectedProduct,
+        currentStock:
+          (selectedProduct.currentStock || 0) +
+          Number(data.quantity),
+      });
+
+      reset({
+        id: selectedProduct.id,
+        quantity: 0,
+        transactionUnit: transactionUnit,
+        note: "",
+      });
     } catch (error) {
       console.error(error);
-      alert("Something went wrong");
+      toast.error("Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   }
-
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
       <div className="max-w-3xl">
@@ -247,20 +253,20 @@ export default function ProductionForm({
                 Production Quantity
               </label>
 
-           <input
-  type="number"
-  step="0.001"
-  min="0.001"
-  {...register("quantity", {
-    valueAsNumber: true,
-  })}
-  onFocus={(e) => {
-    if (e.target.value === "0") {
-      e.target.value = "";
-    }
-  }}
-  className="input-style-4"
-/>
+              <input
+                type="number"
+                step="0.001"
+                min="0.001"
+                {...register("quantity", {
+                  valueAsNumber: true,
+                })}
+                onFocus={(e) => {
+                  if (e.target.value === "0") {
+                    e.target.value = "";
+                  }
+                }}
+                className="input-style-4"
+              />
             </div>
 
             {/* Unit */}
@@ -270,29 +276,29 @@ export default function ProductionForm({
                 Unit
               </label>
 
-           <select
-  {...register("transactionUnit")}
-  className="input-style-4"
->
-  <option value="kg">Kilogram (kg)</option>
-  <option value="pcs">Piece (pcs)</option>
-  <option value="box">Box</option>
-  <option value="pack">Pack</option>
-  <option value="bottle">Bottle</option>
-  <option value="can">Can</option>
-  <option value="jar">Jar</option>
-  <option value="bag">Bag</option>
-  <option value="carton">Carton</option>
-  <option value="tray">Tray</option>
-  <option value="roll">Roll</option>
-  <option value="pair">Pair</option>
-  <option value="dozen">Dozen</option>
+              <select
+                {...register("transactionUnit")}
+                className="input-style-4"
+              >
+                <option value="kg">Kilogram (kg)</option>
+                <option value="pcs">Piece (pcs)</option>
+                <option value="box">Box</option>
+                <option value="pack">Pack</option>
+                <option value="bottle">Bottle</option>
+                <option value="can">Can</option>
+                <option value="jar">Jar</option>
+                <option value="bag">Bag</option>
+                <option value="carton">Carton</option>
+                <option value="tray">Tray</option>
+                <option value="roll">Roll</option>
+                <option value="pair">Pair</option>
+                <option value="dozen">Dozen</option>
 
-  
-  <option value="gm">Gram (g)</option>
-  <option value="ltr">Liter (L)</option>
-  <option value="ml">Milliliter (ml)</option>
-</select>
+
+                <option value="gm">Gram (g)</option>
+                <option value="ltr">Liter (L)</option>
+                <option value="ml">Milliliter (ml)</option>
+              </select>
             </div>
 
           </div>

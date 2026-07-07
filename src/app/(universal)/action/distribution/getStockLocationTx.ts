@@ -20,7 +20,7 @@ export async function getStockLocation({
   locationRef,
 }: GetStockLocationProps): Promise<StockLocationType | null> {
   const id = `${productId}_${locationType}_${locationRef}`;
-
+ 
   const ref = adminDb.collection("stockLocation").doc(id);
 
   const snap = await tx.get(ref);

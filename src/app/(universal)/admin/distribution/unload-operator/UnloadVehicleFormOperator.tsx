@@ -348,14 +348,14 @@ const onSubmit = async (
                       Product
                     </th>
 
-                    <th className="text-center p-3">
-                      Truck Stock
-                    </th>
+                   
 
                     <th className="text-center p-3">
                      Factory Stock
                     </th>
-
+ <th className="text-center p-3">
+                      Truck Stock
+                    </th>
                     <th className="text-center p-3">
                       Unload Qty
                     </th>
@@ -379,7 +379,7 @@ const onSubmit = async (
                       </td>
 
                       <td className="text-center">
-                        {item.quantity}
+                        {item.factoryQuantity}
                       </td>
 
                       <td className="text-center font-semibold text-blue-700">

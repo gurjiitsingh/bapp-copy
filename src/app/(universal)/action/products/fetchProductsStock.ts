@@ -5,6 +5,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { ProductStock } from "@/lib/types/productStockType";
 
 export async function fetchProductsStock(): Promise<ProductStock[]> {
+  
   try {
     const snapshot = await adminDb
       .collection("productStock")
@@ -14,6 +15,8 @@ export async function fetchProductsStock(): Promise<ProductStock[]> {
 
     return snapshot.docs.map((doc) => {
       const data = doc.data() as ProductStock;
+
+       
 
       return {
         id: doc.id,
@@ -34,9 +37,9 @@ export async function fetchProductsStock(): Promise<ProductStock[]> {
 
         // PRICING
         sellingPrice: data.sellingPrice ?? 0,
-       bulkPrice: data.bulkPrice ?? undefined,
+       wholesalePrice: data.wholesalePrice ?? undefined,
         costPrice: data.costPrice ?? 0,
-        avgCost: data.avgCost ?? data.costPrice ?? 0,
+        avgCost: data.avgCost ??  0,
 
         // UNIT
         sellingUnit: data.sellingUnit ?? "kg",

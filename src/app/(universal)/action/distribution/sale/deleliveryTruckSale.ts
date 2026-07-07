@@ -24,7 +24,7 @@ type deliveryTruckSaleProps = {
   vehicleName: string;
   locationCode: string;
   responsiblePerson: string;
-
+wholeSalePrice: number;
   wholeSaleCutomerId: string;
   wholeSaleCutomerName: string;
 
@@ -39,7 +39,7 @@ export async function deiveryTruckSale({
   vehicleName,
   locationCode,
   responsiblePerson,
-
+wholeSalePrice,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
 
@@ -47,6 +47,18 @@ export async function deiveryTruckSale({
   createdBy,
   items,
 }: deliveryTruckSaleProps) {
+
+  console.log("data------------", vehicleId,
+  vehicleName,
+  locationCode,
+  responsiblePerson,
+wholeSalePrice,
+  wholeSaleCutomerId,
+  wholeSaleCutomerName,
+
+  remarks,
+  createdBy,
+  items,)
 
   if (!wholeSaleCutomerId) {
     return {
@@ -101,7 +113,7 @@ export async function deiveryTruckSale({
         wholeSaleCutomerId,
       });
 
-      console.log("coust data--------------", currentBalance, currentCreditBalance)
+      
       // =========================
       // VALIDATE
       // =========================

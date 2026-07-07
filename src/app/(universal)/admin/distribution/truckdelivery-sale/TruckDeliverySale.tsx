@@ -46,6 +46,7 @@ type TruckDeliverySaleType = {
   items: {
     productId: string;
     quantity: number;
+    sellingPrice: number;
   }[];
 };
 
@@ -108,6 +109,7 @@ export default function TruckDeliverySale({
       result.map((item) => ({
         productId: item.productId,
         quantity: 0,
+         sellingPrice: item.costPrice,
       }))
     );
   };
@@ -174,6 +176,22 @@ export default function TruckDeliverySale({
       (x) => x.quantity > 0
     );
 
+
+    if (!data.vehicleId) {
+      toast.error("Please select a vehicle.");
+      return;
+    }
+
+    if (!selectedVehicle?.name) {
+      toast.error("Selected vehicle not found.");
+      return;
+    }
+
+    if (!data.wholeSaleCutomerId) {
+      toast.error("Please select a wholesale customer.");
+      return;
+    }
+
     if (!items.length) {
       toast.error(
         "Please enter at least one quantity."
@@ -182,17 +200,18 @@ export default function TruckDeliverySale({
     }
 
     const result = await deiveryTruckSale({
-       vehicleId: data.vehicleId,
-  vehicleName: selectedVehicle!.name,
-  locationCode: selectedVehicle!.locationCode,
-  responsiblePerson: selectedVehicle!.responsiblePersonName,
+      vehicleId: data.vehicleId,
+      vehicleName: selectedVehicle!.name,
+      locationCode: selectedVehicle!.locationCode,
+      wholeSalePrice: selectedVehicle!.wholeSalePrice!,
+      responsiblePerson: selectedVehicle!.responsiblePersonName,
 
-  wholeSaleCutomerId: data.wholeSaleCutomerId!,
-  wholeSaleCutomerName:
-    data.wholeSaleCutomerName!,
+      wholeSaleCutomerId: data.wholeSaleCutomerId!,
+      wholeSaleCutomerName:
+        data.wholeSaleCutomerName!,
 
-  remarks: data.remarks,
-  items,
+      remarks: data.remarks,
+      items,
     });
 
 
@@ -346,16 +365,7 @@ export default function TruckDeliverySale({
 
                 {/* Date */}
 
-                {/* <div className="flex flex-col gap-2">
-                <label className="label-style-4">
-                  Unloading Date
-                </label>
 
-                <Input
-                  type="date"
-                  className="input-style-4"
-                />
-              </div> */}
 
                 {/* Reference */}
 
@@ -506,21 +516,23 @@ export default function TruckDeliverySale({
                       <th className="text-left p-3">
                         Product
                       </th>
-
+                      <th className="text-center p-3">
+                        Price
+                      </th>
                       <th className="text-center p-3">
                         Truck Stock
                       </th>
 
-                      {/* <th className="text-center p-3">
-                     Factory Stock
-                    </th> */}
+                      <th className="text-center p-3">
+                     Selling Price
+                    </th>
 
                       <th className="text-center p-3">
-                        Unload Qty
+                        Selling Qty
                       </th>
-                      <th className="text-center p-3">
+                      {/* <th className="text-center p-3">
                         Remaining
-                      </th>
+                      </th> */}
                     </tr>
                   </thead>
 
@@ -529,7 +541,7 @@ export default function TruckDeliverySale({
                     {rows.map((item, index) => {
                       const qty =
                         form.watch(`items.${index}.quantity`) || 0;
-
+ sellingPrice: item.costPrice;
                       return (
                         <tr
                           key={item.productId}
@@ -546,14 +558,27 @@ export default function TruckDeliverySale({
                           <td className="p-3 font-medium">
                             {item.productName}
                           </td>
+                          <td className="text-center p-3 font-medium">
+                            {item.costPrice}
+                          </td>
 
                           <td className="text-center">
                             {item.quantity}
                           </td>
 
-                          {/* <td className="text-center font-semibold text-blue-700">
-                        {item.quantity}
-                      </td> */}
+                      <td className="p-2 w-36">
+  <Input
+    type="number"
+    step="0.01"
+    min={0}
+    {...form.register(
+      `items.${index}.sellingPrice`,
+      {
+        valueAsNumber: true,
+      }
+    )}
+  />
+</td>
 
                           <td className="p-2">
                             <Input
@@ -570,9 +595,9 @@ export default function TruckDeliverySale({
                               }}
                             />
                           </td>
-                          <td className="text-center font-semibold text-green-700">
+                          {/* <td className="text-center font-semibold text-green-700">
                             {item.quantity - qty}
-                          </td>
+                          </td> */}
                         </tr>
                       )
                     })}
