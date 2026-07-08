@@ -13,11 +13,9 @@ import { readStockLocationsForItems } from "../redDataForSale/readStockLocations
 import { readCustomerAccountData } from "../redDataForSale/readCustomerAccountData";
 import { addItemSaleTruck } from "../addItemSaleTruck";
 import { readFinishedProductData } from "../redDataForSale/readFinishedProductData";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
-type deliveryTruckSaleItem = {
-  productId: string;
-  quantity: number;
-};
+ 
 
 type deliveryTruckSaleProps = {
   vehicleId: string;
@@ -31,7 +29,7 @@ type deliveryTruckSaleProps = {
   totalAmount: number;
 
   paymentStatus: "PAID" | "PARTIAL" | "CREDIT";
-  paymentMethod?: string;
+ paymentMethod?: PaymentMethodType;
 
   paidAmount: number;
   dueAmount: number;
@@ -266,7 +264,7 @@ let result = await addItemSaleTruck({
   unitPrice: row.item.wholesalePrice,
 
   paymentStatus,
-  paymentMethod,
+  paymentMethod : paymentMethod as PaymentMethodType,
 
   paidAmount,
   dueAmount,

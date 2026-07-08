@@ -15,6 +15,7 @@ import { updateCustomerAccount } from "../stock-finished/inventorySupplier/updat
 import { applyCustomerTransaction } from "../stock-finished/customer/applyCustomerTransaction";
 import { ProductStockType } from "@/lib/types/productStockType";
 import { applyFinishedTransactions } from "./sale/applyFinishedTransactions";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
 type PaymentMethod =
   | "CASH"
@@ -48,7 +49,7 @@ finishedProduct: ProductStockType;
   unitPrice: number;
 
   paymentStatus?: PaymentStatus;
-  paymentMethod?: PaymentMethod;
+  paymentMethod?: PaymentMethodType;
 
   paidAmount?: number;
   dueAmount?: number;

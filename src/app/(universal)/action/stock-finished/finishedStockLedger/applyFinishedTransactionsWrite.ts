@@ -5,6 +5,7 @@ import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
+import { applyFinishedTransactionsRead } from "./applyFinishedTransactionsRead";
 
 type ApplyFinishedMovementType = {
   productId: string;
@@ -76,7 +77,7 @@ export async function applyFinishedTransactionsWrite(
   }
 ) {
 
-
+ 
   const now =
     admin.firestore.FieldValue.serverTimestamp();
 
