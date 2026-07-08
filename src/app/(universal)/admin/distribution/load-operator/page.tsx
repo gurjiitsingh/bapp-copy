@@ -10,7 +10,6 @@ export default async function Page() {
       locationRef: "MAIN",
     }),
   ]);
-  console.log("factoryStock----------------------",factoryStock)
 
   return (
     <LoadVehicleFormOperator

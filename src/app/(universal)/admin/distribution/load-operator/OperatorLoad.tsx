@@ -26,9 +26,11 @@ type LoadVehicleFormType = {
   vehicleId: string;
   remarks?: string;
   name: string;
+
   items: {
     productId: string;
     quantity: number;
+    wholesalePrice:number;
   }[];
 };
 
@@ -49,10 +51,11 @@ export default function LoadVehicleFormOeprator({
     defaultValues: {
       vehicleId: "",
       remarks: "",
-      items: factoryStock.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-      })),
+   items: factoryStock.map((item)=>({
+  productId:item.productId,
+  quantity:0,
+  wholesalePrice:item.wholesalePrice,
+}))
     },
   });
 
@@ -185,6 +188,7 @@ export default function LoadVehicleFormOeprator({
               locationType: "TRUCK",
               locationRef: data.vehicleId,
               quantity: loaded.quantity,
+              wholesalePrice: loaded.wholesalePrice,
             });
           }
         }
@@ -200,10 +204,11 @@ export default function LoadVehicleFormOeprator({
     form.reset({
       vehicleId: data.vehicleId,
       remarks: "",
-      items: factoryData.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-      })),
+   items: factoryData.map((item)=>({
+  productId:item.productId,
+  quantity:0,
+  wholesalePrice:item.wholesalePrice,
+}))
     });
   };
 
@@ -397,7 +402,7 @@ export default function LoadVehicleFormOeprator({
                           {item.productName}
                         </td>
                         <td className="text-center p-3 font-medium  ">
-                          {item.costPrice}
+                         {item.wholesalePrice}
                         </td>
                         <td className="text-center font-semibold">
                           {item.quantity}

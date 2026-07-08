@@ -87,7 +87,7 @@ export async function applyFinishedTransactions(
   // }
 
   const product = finishedProduct;//snap.data()!;
-console.log("product----------------",product)
+//console.log("product----------------",product)
   const beforeStock = Number(product.currentStock) || 0;
 
   const afterStock =

@@ -35,7 +35,16 @@ export async function updateCustomerAccount(
   if (!wholeSaleCutomerId) return;
 
  
-
+console.log("in update customer account------------------- ",   wholeSaleCutomerId,
+    wholeSaleCutomerName,
+    type,
+    totalAmount,
+    paidAmount,
+    dueAmount ,
+    creditAmount ,
+    currentBalance,
+    currentCreditBalance,
+    paymentMethod,)
 
 
 let balance = currentBalance;

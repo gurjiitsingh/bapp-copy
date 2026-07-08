@@ -44,7 +44,7 @@ export default function ListView({
   const [search, setSearch] =
     useState("");
 
-console.log("produt------------",products)
+
 
   // FILTER
   useEffect(() => {

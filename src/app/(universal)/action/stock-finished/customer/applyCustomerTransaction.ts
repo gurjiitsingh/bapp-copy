@@ -112,10 +112,7 @@ else if (type === "CUSTOMER_RETURN") {
     balance = 0;
   }
 }
- console.log("old/currentCreditBalance----------------",currentCreditBalance)
- console.log("new/credit ----------------",credit)
 
-console.log("type, creditRemaining,returnProductAmount -----------------", type, creditRemaining,returnProductAmount)
   // ==========================================
   // SAVE LEDGER
   // ==========================================

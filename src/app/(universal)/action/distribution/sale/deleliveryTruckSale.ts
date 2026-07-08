@@ -24,14 +24,26 @@ type deliveryTruckSaleProps = {
   vehicleName: string;
   locationCode: string;
   responsiblePerson: string;
-wholeSalePrice: number;
+
   wholeSaleCutomerId: string;
   wholeSaleCutomerName: string;
+
+  totalAmount: number;
+
+  paymentStatus: "PAID" | "PARTIAL" | "CREDIT";
+  paymentMethod?: string;
+
+  paidAmount: number;
+  dueAmount: number;
 
   remarks?: string;
   createdBy?: string;
 
-  items: deliveryTruckSaleItem[];
+  items: {
+    productId: string;
+    quantity: number;
+    wholesalePrice: number;
+  }[];
 };
 
 export async function deiveryTruckSale({
@@ -39,22 +51,38 @@ export async function deiveryTruckSale({
   vehicleName,
   locationCode,
   responsiblePerson,
-wholeSalePrice,
+
   wholeSaleCutomerId,
   wholeSaleCutomerName,
+
+  totalAmount,
+
+  paymentStatus,
+  paymentMethod,
+  paidAmount,
+  dueAmount,
 
   remarks,
   createdBy,
   items,
+
 }: deliveryTruckSaleProps) {
 
-  console.log("data------------", vehicleId,
+  console.log("data------------",
+  vehicleId,
   vehicleName,
   locationCode,
   responsiblePerson,
-wholeSalePrice,
+
   wholeSaleCutomerId,
   wholeSaleCutomerName,
+
+  totalAmount,
+
+  paymentStatus,
+  paymentMethod,
+  paidAmount,
+  dueAmount,
 
   remarks,
   createdBy,
@@ -66,9 +94,6 @@ wholeSalePrice,
       message: "Customer is required.",
     };
   }
-
-
-
   try {
     if (!vehicleId) {
       return {
@@ -83,6 +108,33 @@ wholeSalePrice,
         message: "No products selected.",
       };
     }
+
+    if (totalAmount <= 0) {
+  return {
+    success: false,
+    message: "Invalid total amount.",
+  };
+}
+
+
+if (paidAmount < 0 || dueAmount < 0) {
+  return {
+    success: false,
+    message: "Invalid payment amount.",
+  };
+}
+
+
+if (
+  Math.round((paidAmount + dueAmount) * 100) !==
+  Math.round(totalAmount * 100)
+) {
+  return {
+    success: false,
+    message:
+      "Paid amount and due amount do not match total amount.",
+  };
+}
 
     await adminDb.runTransaction(async (tx) => {
 
@@ -113,7 +165,7 @@ wholeSalePrice,
         wholeSaleCutomerId,
       });
 
-      
+
       // =========================
       // VALIDATE
       // =========================
@@ -126,31 +178,40 @@ wholeSalePrice,
         }
       }
 
+   
 
-   const finishedProducts = new Map();
+      console.log("TOTAL SALE", totalAmount);
 
-for (const row of stocks) {
-  const product = await readFinishedProductData({
-    tx,
-    productId: row.vehicle.productId,
-  });
+      const finishedProducts = new Map();
 
-  finishedProducts.set(row.vehicle.productId, product);
-}
+      for (const row of stocks) {
+        const product = await readFinishedProductData({
+          tx,
+          productId: row.vehicle.productId,
+        });
 
+        finishedProducts.set(row.vehicle.productId, product);
+      }
+      console.log("data------------", 1)
+
+      let runningBalance = currentBalance;
+      let runningCreditBalance = currentCreditBalance;
+       
       // =========================
       // WRITE
       // =========================
 
       for (const row of stocks) {
-        // Remove from vehicle
+        console.log('Item-----------', row.item)
+
+        const wholesalePrice = row.item.wholesalePrice;
         await updateStockLocation({
           tx,
           snap: row.vehicle,
           quantity: -row.item.quantity,
         });
 
-  
+        console.log("data------------", 2)
 
         // Movement history
         await addStockMovement({
@@ -176,49 +237,52 @@ for (const row of stocks) {
           createdBy,
         });
 
-        let runningBalance = currentBalance;
-        let runningCreditBalance = currentCreditBalance;
+
+
 
         // NOW PROCESS SALE
         const finishedProduct =
-  finishedProducts.get(row.vehicle.productId);
+          finishedProducts.get(row.vehicle.productId);
+        console.log("data------------", 3)
+let result = await addItemSaleTruck({
+  tx,
+  finishedProduct,
 
-        let result = await addItemSaleTruck({
-          tx,
-finishedProduct,
-          id: row.vehicle.productId,
+  id: row.vehicle.productId,
 
-          wholeSaleCutomerId,
-          wholeSaleCutomerName,
+  wholeSaleCutomerId,
+  wholeSaleCutomerName,
 
-          currentBalance: runningBalance,
-          currentCreditBalance: runningCreditBalance,
+  currentBalance: runningBalance,
+  currentCreditBalance: runningCreditBalance,
 
-          type: "SALE",
-          direction: "OUT",
+  type:"SALE",
+  direction:"OUT",
 
-          quantity: row.item.quantity,
-          transactionUnit: 'kg',// row.vehicle.transactionUnit,
+  quantity: row.item.quantity,
 
-          unitPrice: 0,
+  transactionUnit:"kg",
 
-          paymentStatus: "PAID",
-          paymentMethod: "CASH",
+  unitPrice: row.item.wholesalePrice,
 
-          paidAmount: 0,
-          dueAmount: 0,
+  paymentStatus,
+  paymentMethod,
 
-          note: remarks,
-          createdBy,
+  paidAmount,
+  dueAmount,
 
-          referenceType: "SALE",
-        });
+  note:remarks,
+
+  createdBy,
+
+  referenceType:"SALE",
+});
         runningBalance = result.currentBalance!;
         runningCreditBalance = result.currentCreditBalance!;
 
       }
     });
-
+    console.log("data------------", 4)
     return {
       success: true,
       message: "Truck delivery sale recorded successfully.",
